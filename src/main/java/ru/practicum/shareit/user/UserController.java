@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User saveUser(@Valid @RequestBody User User) {
+    public User saveUser(@Valid @RequestBody User User) {//
         log.info("Добавили нового пользователя");
         return userService.saveUser(User);
     }
