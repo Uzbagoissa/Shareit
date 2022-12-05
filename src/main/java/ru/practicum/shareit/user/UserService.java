@@ -1,12 +1,10 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.Valid;
 import java.util.List;
 
-interface UserService {
+public interface UserService {
     List<User> getAllUsers();
     User saveUser(User User);
     void removeUser(long id);

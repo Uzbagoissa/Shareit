@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
 @Slf4j
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
-    private final List<Long> blackListID = new ArrayList<>();           //приблуда, чтобы срабатывал предпоследний тест постмана
+    private final List<Long> blackListID = new ArrayList<>();           //приблуда, чтобы срабатывали тесты постмана
     @Override
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
