@@ -32,17 +32,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(long id) {
-        userValid (id);
+        userValid(id);
         return repository.getUserById(id);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, long id) {
-        userValid (id);
+        userValid(id);
         return repository.updateUser(userDto, id);
     }
 
-    private void userValid (long id){
+    private void userValid(long id) {
         if (!repository.getAllUsers().stream()
                 .map(UserDto::getId)
                 .collect(Collectors.toList())

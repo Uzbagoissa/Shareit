@@ -34,7 +34,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public ItemDto getItemById(long userId, long id) {
-        itemValid (id);
+        itemValid(id);
         return itemMapper.toItemDto(items.get(id));
     }
 
@@ -75,7 +75,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public ItemDto updateItem(long userId, ItemDto itemDto, long id) {
-        itemValid (id);
+        itemValid(id);
         if (items.get(id).getUserId() != userId) {
             log.error("Пользователь с id {} не может изменять эту вещь с id {}!", userId, id);
             throw new ForbiddenException("Пользователю запрещено изменять чужую вещь!");
@@ -107,7 +107,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         return lastId + 1;
     }
 
-    private void itemValid (long id){
+    private void itemValid(long id) {
         if (!items.containsKey(id)) {
             log.error("Вещи с таким id не существует! {}", id);
             throw new NotFoundException("Вещи с таким id не существует!");

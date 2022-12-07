@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path ="/items")
+@RequestMapping(path = "/items")
 public class ItemController {
     private final ItemService itemService;
 
@@ -23,7 +23,7 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
-                            @PathVariable("id") long id){
+                               @PathVariable("id") long id) {
         log.info("Получили вещь id {}", id);
         return itemService.getItemById(userId, id);
     }
@@ -37,15 +37,15 @@ public class ItemController {
 
     @PostMapping
     public ItemDto saveItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                         @Valid @RequestBody ItemDto itemDto) {
+                            @Valid @RequestBody ItemDto itemDto) {
         log.info("Добавили новую вещь");
         return itemService.saveItem(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                           @RequestBody ItemDto itemDto,
-                           @PathVariable("id") long id){
+                              @RequestBody ItemDto itemDto,
+                              @PathVariable("id") long id) {
         log.info("Обновили вещь c id: {}", id);
         return itemService.updateItem(userId, itemDto, id);
     }

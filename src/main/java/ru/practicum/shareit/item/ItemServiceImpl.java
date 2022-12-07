@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository repository;
+
     @Override
     public List<ItemDto> getAllItems(long userId) {
         userValid(userId);
@@ -46,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
         return repository.updateItem(userId, itemDto, id);
     }
 
-    private void userValid (long userId){
+    private void userValid(long userId) {
         if (!userService.getAllUsers().stream()
                 .map(UserDto::getId)
                 .collect(Collectors.toList())

@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUserById(@PathVariable("id") long id){
+    public UserDto getUserById(@PathVariable("id") long id) {
         log.info("Получили пользователя c id: {}", id);
         return userService.getUserById(id);
     }
@@ -34,14 +34,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void removeUser(@PathVariable("id") long id){
+    public void removeUser(@PathVariable("id") long id) {
         log.info("Удалили пользователя");
         userService.removeUser(id);
     }
 
     @PatchMapping("/{id}")
     public UserDto updateUser(@RequestBody UserDto userDto,
-                           @PathVariable("id") long id){
+                              @PathVariable("id") long id) {
         log.info("Обновили пользователя c id: {}", id);
         return userService.updateUser(userDto, id);
     }
