@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +20,5 @@ public class ItemDto {
     @NotNull
     @NotBlank(message = "Ошибка: описание пустое или содержит только пробелы")
     private String description;
-    @AssertTrue(message = "Предмета нет в наличии")
-    private boolean available;
+    private Boolean available;
 }

@@ -4,14 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserServiceImpl;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,40 +19,40 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository repository;
     @Override
     public List<ItemDto> getAllItems(long userId) {
+        userValid(userId);
         return repository.getAllItems(userId);
     }
 
     @Override
-    public Item getItemById(long id) {
-        return repository.getItemById(id);
+    public ItemDto getItemById(long userId, long id) {
+        userValid(userId);
+        return repository.getItemById(userId, id);
+    }
+
+    @Override
+    public List<ItemDto> searchItems(String text) {
+        return repository.searchItems(text);
     }
 
     @Override
     public ItemDto saveItem(long userId, ItemDto itemDto) {
-        if (!userService.getAllUsers().stream()
-                .map(User::getId)
-                .collect(Collectors.toList())
-                .contains(userId)) {
-            log.error("Пользователь с таким id не существует! {}", userId);
-            throw new NotFoundException("Пользователь с таким id не существует!");
-        }
-        Item item = new Item();
-        item.setUserId(userId);
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.isAvailable());
-        return repository.saveItem(item, itemDto);
+        userValid(userId);
+        return repository.saveItem(userId, itemDto);
     }
 
     @Override
     public ItemDto updateItem(long userId, ItemDto itemDto, long id) {
+        userValid(userId);
+        return repository.updateItem(userId, itemDto, id);
+    }
+
+    private void userValid (long userId){
         if (!userService.getAllUsers().stream()
-                .map(User::getId)
+                .map(UserDto::getId)
                 .collect(Collectors.toList())
                 .contains(userId)) {
-            log.error("Пользователь с таким id не существует! {}", userId);
-            throw new NotFoundException("Пользователь с таким id не существует!");
+            log.error("Пользователя с таким id не существует! {}", userId);
+            throw new NotFoundException("Пользователя с таким id не существует!");
         }
-        return repository.updateItem(itemDto, id);
     }
 }

@@ -22,5 +22,4 @@ public class User {
     @NotBlank(message = "Ошибка: email пустой или содержит только пробелы")
     @Email(message = "Ошибка в записи email")
     private String email;
-
 }

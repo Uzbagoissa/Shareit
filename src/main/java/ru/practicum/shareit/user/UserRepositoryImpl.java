@@ -2,8 +2,9 @@ package ru.practicum.shareit.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -15,23 +16,25 @@ import java.util.Map;
 @Slf4j
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
-    private final List<Long> blackListID = new ArrayList<>();           //приблуда, чтобы срабатывали тесты постмана
+    private final List<Long> blackListID = new ArrayList<>();           //приблуда, чтобы не переиспользовать ID удаленных пользователей
+    private final UserMapper userMapper = new UserMapper();
+
     @Override
-    public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+    public List<UserDto> getAllUsers() {
+        List<UserDto> userDtos = new ArrayList<>();
+        for (User user : users.values()) {
+            userDtos.add(userMapper.toUserDto(user));
+        }
+        return userDtos;
     }
 
     @Override
-    public User saveUser(User user) {
-        for (User userExist : users.values()) {
-            if (userExist.getEmail().equals(user.getEmail())) {
-                log.error("Пользователь с таким email уже существует! {}", userExist);
-                throw new ValidationException("Пользователь с таким email уже существует!");
-            }
-        }
-        user.setId(getId());
+    public UserDto saveUser(UserDto userDto) {
+        emailValid(userDto);
+        User user = userMapper.toUser(userDto, getIdforUser());
+        userDto.setId(getIdforUser());
         users.put(user.getId(), user);
-        return user;
+        return userDto;
     }
 
     @Override
@@ -41,48 +44,47 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User getUserById(long id) {
-        if (!users.containsKey(id)) {
-            log.error("Пользователя с таким id не существует! {}", id);
-            throw new NotFoundException("Пользователя с таким id не существует!");
-        }
-        return users.get(id);
+    public UserDto getUserById(long id) {
+        return userMapper.toUserDto(users.get(id));
     }
 
     @Override
-    public User updateUser(User user, long id) {
-        if (!users.containsKey(id)) {
-            log.error("Пользователя с таким id не существует! {}", id);
-            throw new NotFoundException("Пользователя с таким id не существует!");
-        }
-        for (User userExist : users.values()) {
-            if (userExist.getEmail().equals(user.getEmail())) {
-                log.error("Пользователь с таким email уже существует! {}", userExist);
-                throw new ValidationException("Пользователь с таким email уже существует!");
-            }
-        }
-        user.setId(id);
-        if (user.getName() == null){
-            user.setName(users.get(id).getName());
-        }
-        if (user.getEmail() == null){
+    public UserDto updateUser(UserDto userDto, long id) {
+        emailValid(userDto);
+        User user = userMapper.toUser(userDto, id);
+        if (userDto.getEmail() == null) {
             user.setEmail(users.get(id).getEmail());
+            userDto.setEmail(users.get(id).getEmail());
         }
+        if (userDto.getName() == null) {
+            user.setName(users.get(id).getName());
+            userDto.setName(users.get(id).getName());
+        }
+        userDto.setId(id);
         users.put(id, user);
-        return user;
+        return userDto;
     }
 
-    private long getId() {
+    private long getIdforUser() {
         long lastId = users.values().stream()
                 .mapToLong(User::getId)
                 .max()
                 .orElse(0);
         lastId = lastId + 1;
         for (Long blackID : blackListID) {
-            if (lastId == blackID){
+            if (lastId == blackID) {
                 lastId = lastId + 1;
             }
         }
         return lastId;
+    }
+
+    private void emailValid(UserDto userDto) {
+        for (User userExist : users.values()) {
+            if (userExist.getEmail().equals(userDto.getEmail())) {
+                log.error("Пользователь с таким email уже существует! {}", userExist);
+                throw new ValidationException("Пользователь с таким email уже существует!");
+            }
+        }
     }
 }
