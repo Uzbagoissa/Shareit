@@ -21,4 +21,5 @@ public class ItemDto {
     @NotBlank(message = "Ошибка: описание пустое или содержит только пробелы")
     private String description;
     private Boolean available;
+    private String request;
 }

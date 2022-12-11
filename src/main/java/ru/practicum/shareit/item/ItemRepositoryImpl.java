@@ -19,14 +19,13 @@ import java.util.Map;
 public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
     private final List<String> searchHistory = new ArrayList<>();
-    private final ItemMapper itemMapper = new ItemMapper();
 
     @Override
     public List<ItemDto> getAllItems(long userId) {
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items.values()) {
             if (item.getUserId() == userId) {
-                itemDtos.add(itemMapper.toItemDto(item));
+                itemDtos.add(ItemMapper.toItemDto(item));
             }
         }
         return itemDtos;
@@ -35,13 +34,13 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public ItemDto getItemById(long userId, long id) {
         itemValid(id);
-        return itemMapper.toItemDto(items.get(id));
+        return ItemMapper.toItemDto(items.get(id));
     }
 
     @Override
     public List<ItemDto> searchItems(String text) {
         List<ItemDto> itemDtosSearched = new ArrayList<>();
-        if (text.equals("")) {
+        if (text.isBlank()) {
             for (Item item : items.values()) {
                 if (item.getName().toLowerCase().contains(searchHistory.get(searchHistory.size() - 1).toLowerCase()) && item.getAvailable().equals(true) ||
                         item.getDescription().toLowerCase().contains(searchHistory.get(searchHistory.size() - 1).toLowerCase()) && item.getAvailable().equals(true)) {
@@ -52,7 +51,7 @@ public class ItemRepositoryImpl implements ItemRepository {
             for (Item item : items.values()) {
                 if (item.getName().toLowerCase().contains(text.toLowerCase()) && item.getAvailable().equals(true) ||
                         item.getDescription().toLowerCase().contains(text.toLowerCase()) && item.getAvailable().equals(true)) {
-                    itemDtosSearched.add(itemMapper.toItemDto(item));
+                    itemDtosSearched.add(ItemMapper.toItemDto(item));
                     searchHistory.add(text);
                 }
             }
@@ -66,7 +65,7 @@ public class ItemRepositoryImpl implements ItemRepository {
             log.error("Нужно указать наличие вещи!");
             throw new IncorrectParameterException("Нужно указать наличие вещи!");
         }
-        Item item = itemMapper.toItem(itemDto, userId);
+        Item item = ItemMapper.toItem(itemDto, userId);
         item.setId(getIdforItem());
         itemDto.setId(getIdforItem());
         items.put(item.getId(), item);
@@ -80,7 +79,7 @@ public class ItemRepositoryImpl implements ItemRepository {
             log.error("Пользователь с id {} не может изменять эту вещь с id {}!", userId, id);
             throw new ForbiddenException("Пользователю запрещено изменять чужую вещь!");
         }
-        Item item = itemMapper.toItem(itemDto, userId);
+        Item item = ItemMapper.toItem(itemDto, userId);
         item.setId(id);
         if (itemDto.getName() == null) {
             item.setName(items.get(id).getName());

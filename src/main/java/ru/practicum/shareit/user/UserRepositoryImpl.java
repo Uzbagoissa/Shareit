@@ -17,13 +17,12 @@ import java.util.Map;
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private final List<Long> blackListID = new ArrayList<>();           //приблуда, чтобы не переиспользовать ID удаленных пользователей
-    private final UserMapper userMapper = new UserMapper();
 
     @Override
     public List<UserDto> getAllUsers() {
         List<UserDto> userDtos = new ArrayList<>();
         for (User user : users.values()) {
-            userDtos.add(userMapper.toUserDto(user));
+            userDtos.add(UserMapper.toUserDto(user));
         }
         return userDtos;
     }
@@ -31,7 +30,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public UserDto saveUser(UserDto userDto) {
         emailValid(userDto);
-        User user = userMapper.toUser(userDto, getIdforUser());
+        User user = UserMapper.toUser(userDto, getIdforUser());
         userDto.setId(getIdforUser());
         users.put(user.getId(), user);
         return userDto;
@@ -45,13 +44,13 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserDto getUserById(long id) {
-        return userMapper.toUserDto(users.get(id));
+        return UserMapper.toUserDto(users.get(id));
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, long id) {
         emailValid(userDto);
-        User user = userMapper.toUser(userDto, id);
+        User user = UserMapper.toUser(userDto, id);
         if (userDto.getEmail() == null) {
             user.setEmail(users.get(id).getEmail());
             userDto.setEmail(users.get(id).getEmail());
