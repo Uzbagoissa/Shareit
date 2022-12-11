@@ -6,7 +6,8 @@ import ru.practicum.shareit.booking.model.Booking;
 
 @Service
 public class BookingMapper {
-    private BookingMapper(){}
+    private BookingMapper() {
+    }
 
     public static BookingDto toBookingDto(Booking booking) {
         return new BookingDto(

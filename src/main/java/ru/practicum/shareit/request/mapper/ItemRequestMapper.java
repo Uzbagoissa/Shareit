@@ -6,7 +6,8 @@ import ru.practicum.shareit.request.model.ItemRequest;
 
 @Service
 public class ItemRequestMapper {
-    private ItemRequestMapper(){}
+    private ItemRequestMapper() {
+    }
 
     public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
         return new ItemRequestDto(
