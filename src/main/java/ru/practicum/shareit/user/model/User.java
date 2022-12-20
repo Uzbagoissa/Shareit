@@ -1,25 +1,39 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Entity
+@Table(name = "users", schema = "public")
+@Getter @Setter @ToString
 public class User {
-    private long id;
-    @NotNull
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @NotBlank(message = "Ошибка: имя пустое или содержит только пробелы")
+    @Column(name = "name", nullable = false)
     private String name;
-    @NotNull
+
     @NotBlank(message = "Ошибка: email пустой или содержит только пробелы")
     @Email(message = "Ошибка в записи email")
+    @Column(name = "email", nullable = false)
     private String email;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        return id != null && id.equals(((User) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
