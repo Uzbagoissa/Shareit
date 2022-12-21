@@ -1,26 +1,44 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Entity
+@Table(name = "items", schema = "public")
+@Getter
+@Setter @ToString
 public class Item {
-    private long id;
-    private long userId;
-    @NotNull
-    @NotBlank(message = "Ошибка: имя пустое или содержит только пробелы")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "userId", nullable = false)
+    private Long userId;
+
+    @Column(name = "name", nullable = false)
     private String name;
-    @NotNull
-    @NotBlank(message = "Ошибка: описание пустое или содержит только пробелы")
+
+    @Column(name = "description", nullable = false)
     private String description;
+
+    @Column(name = "available", nullable = false)
     private Boolean available;
+
+    @Column(name = "request", nullable = false)
     private String request;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Item)) return false;
+        return id != null && id.equals(((Item) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

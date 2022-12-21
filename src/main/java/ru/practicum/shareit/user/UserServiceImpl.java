@@ -24,12 +24,13 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toListUserDto(repository.findAll());
     }
 
+    @Transactional
     @Override
     public UserDto saveUser(UserDto userDto) {
-        emailValid(userDto);
         return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
     }
 
+    @Transactional
     @Override
     public void removeUser(long id) {
         repository.deleteById(id);
@@ -41,10 +42,10 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(repository.getById(id));// , а findById() - лишняя возня с Optional
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(UserDto userDto, long id) {
         userValid(id);
-        emailValid(userDto);
         User user = UserMapper.toUser(userDto);
         if (userDto.getEmail() == null) {
             user.setEmail(repository.getById(id).getEmail());
@@ -65,15 +66,6 @@ public class UserServiceImpl implements UserService {
                 .contains(id)) {
             log.error("Пользователя с таким id не существует! {}", id);
             throw new NotFoundException("Пользователя с таким id не существует!");
-        }
-    }
-
-    private void emailValid(UserDto userDto) {
-        for (User userExist : repository.findAll()) {
-            if (userExist.getEmail().equals(userDto.getEmail())) {
-                log.error("Пользователь с таким email уже существует! {}", userExist);
-                throw new ValidationException("Пользователь с таким email уже существует!");
-            }
         }
     }
 }

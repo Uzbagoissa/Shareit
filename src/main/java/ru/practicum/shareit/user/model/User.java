@@ -16,12 +16,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Ошибка: имя пустое или содержит только пробелы")
     @Column(name = "name", nullable = false)
     private String name;
 
-    @NotBlank(message = "Ошибка: email пустой или содержит только пробелы")
-    @Email(message = "Ошибка в записи email")
     @Column(name = "email", nullable = false)
     private String email;
 

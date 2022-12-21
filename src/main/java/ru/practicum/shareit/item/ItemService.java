@@ -7,7 +7,7 @@ import java.util.List;
 public interface ItemService {
     List<ItemDto> getAllItems(long userId);
 
-    ItemDto getItemById(long userId, long id);
+    ItemDto getItemById(long id);
 
     List<ItemDto> searchItems(String text);
 

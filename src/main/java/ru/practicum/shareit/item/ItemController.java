@@ -25,7 +25,7 @@ public class ItemController {
     public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
                                @PathVariable("id") long id) {
         log.info("Получили вещь id {}", id);
-        return itemService.getItemById(userId, id);
+        return itemService.getItemById(id);
     }
 
     @GetMapping("/search")
