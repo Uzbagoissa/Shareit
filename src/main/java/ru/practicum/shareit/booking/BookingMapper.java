@@ -5,17 +5,22 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
 
-    public static BookingDtoIn toBookingDtoIn(Booking booking) {
+    /*public static BookingDtoIn toBookingDtoIn(Booking booking) {
         BookingDtoIn bookingDtoIn = new BookingDtoIn();
         bookingDtoIn.setItemId(booking.getId());
         bookingDtoIn.setStart(booking.getStart());
         bookingDtoIn.setEnd(booking.getEnd());
         return bookingDtoIn;
-    }
+    }*/
 
     public static BookingDtoOut toBookingDtoOut(Booking booking) {
         BookingDtoOut bookingDtoOut = new BookingDtoOut();
@@ -33,6 +38,14 @@ public class BookingMapper {
         booking.setBookerId(userId);
         booking.setItemId(bookingDtoIn.getItemId());
         return booking;
+    }
+
+    public static List<BookingDtoOut> toListBookingDtoOut(Iterable<Booking> bookings) {
+        List<BookingDtoOut> result = new ArrayList<>();
+        for (Booking booking : bookings) {
+            result.add(toBookingDtoOut(booking));
+        }
+        return result;
     }
 
     /*public static LocalDate dateFormat(LocalDate date) {

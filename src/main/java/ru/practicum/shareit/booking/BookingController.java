@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
+import ru.practicum.shareit.booking.model.BookingState;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
@@ -24,11 +26,33 @@ public class BookingController {
         return bookingService.getBookingById(id);
     }
 
+    @GetMapping
+    public List<BookingDtoOut> getAllBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") long bookerId,
+                                                        @RequestParam(value = "state", defaultValue = "ALL") String state) {
+        log.info("Получили все бронирования пользователя с id {}", bookerId);
+        return bookingService.getAllBookingsByBookerId(bookerId, state);
+    }
+
+    @GetMapping("/owner")
+    public List<BookingDtoOut> getAllBookingsByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                                                       @RequestParam(value = "state", defaultValue = "ALL") String state) {
+        log.info("Получили все забронированные вещи пользователя с id {}", ownerId);
+        return bookingService.getAllBookingsByOwnerId(ownerId, state);
+    }
+
     @PostMapping
-    public BookingDtoOut saveBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+    public BookingDtoOut saveBooking(@RequestHeader("X-Sharer-User-Id") long bookerId,
                                      @Valid @RequestBody BookingDtoIn bookingDtoIn) {
         log.info("Добавили новый запрос на бронирование");
-        return bookingService.saveBooking(userId, bookingDtoIn);
+        return bookingService.saveBooking(bookerId, bookingDtoIn);
+    }
+
+    @PatchMapping("/{id}")
+    public BookingDtoOut updateBooking(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                                       @RequestParam(value = "approved") String approved,
+                                       @PathVariable("id") long id) {
+        log.info("Обновили статус запроса c id: {}", id);
+        return bookingService.updateBooking(ownerId, approved, id);
     }
 
 }

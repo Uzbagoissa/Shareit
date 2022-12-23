@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class ItemRepositoryImpl  implements ItemRepositoryCustom {
 
     private final ItemRepository repository;
