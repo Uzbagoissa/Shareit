@@ -64,8 +64,8 @@ public class UserServiceImpl implements UserService {
                 .map(User::getId)
                 .collect(Collectors.toList())
                 .contains(id)) {
-            log.error("Пользователя с таким id не существует! {}", id);
-            throw new NotFoundException("Пользователя с таким id не существует!");
+            log.error("Пользователя с id не существует! {}", id);
+            throw new NotFoundException("Пользователя с id не существует!");
         }
     }
 }

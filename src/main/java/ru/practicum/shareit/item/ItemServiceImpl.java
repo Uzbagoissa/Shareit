@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -86,8 +88,8 @@ public class ItemServiceImpl implements ItemService {
                 .map(UserDto::getId)
                 .collect(Collectors.toList())
                 .contains(userId)) {
-            log.error("Пользователя с таким id не существует! {}", userId);
-            throw new NotFoundException("Пользователя с таким id не существует!");
+            log.error("Пользователя с id не существует! {}", userId);
+            throw new NotFoundException("Пользователя с id не существует!");
         }
     }
 
@@ -96,8 +98,8 @@ public class ItemServiceImpl implements ItemService {
                 .map(Item::getId)
                 .collect(Collectors.toList())
                 .contains(id)) {
-            log.error("Вещи с таким id не существует! {}", id);
-            throw new NotFoundException("Вещи с таким id не существует!");
+            log.error("Вещи с id не существует! {}", id);
+            throw new NotFoundException("Вещи с id не существует!");
         }
     }
 

@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
-import ru.practicum.shareit.booking.model.BookingState;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.model.Item;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -22,9 +25,14 @@ public class BookingController {
     @GetMapping("/{id}")
     public BookingDtoOut getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
                                         @PathVariable("id") long id) {
-        log.info("Получили запрос на бронирование с id {}", id);
-        return bookingService.getBookingById(id);
+        log.info("Получили бронирование с id {}", id);
+        return bookingService.getBookingById(userId, id);
     }
+
+    /*@GetMapping("/test/{id}")
+    public List<Booking> getLastBookingByItemId(@PathVariable("id") long id) {
+        return bookingService.getLastBookingByItemId(id);
+    }*/
 
     @GetMapping
     public List<BookingDtoOut> getAllBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") long bookerId,
