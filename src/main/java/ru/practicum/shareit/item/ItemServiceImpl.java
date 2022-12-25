@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -13,10 +12,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,19 +25,30 @@ import java.util.stream.Collectors;
 @Transactional
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
+    private final BookingRepository bookingRepository;
     private final ItemRepository repository;
+    private final CommentRepository commentRepository;
 
 
     @Override
     public List<ItemDto> getAllItems(long userId) {
         userValid(userId);
-        return ItemMapper.toListItemDto(repository.findByUserId(userId));
+        List<ItemDto> itemDtos = ItemMapper.toListItemDto(repository.findByUserId(userId));
+        for (ItemDto itemDto : itemDtos) {
+            itemOwnerValid(itemDto, userId, itemDto.getId());
+            itemDto.setComments(addComments(itemDto.getId()));
+        }
+        itemDtos.sort(Comparator.comparing(ItemDto::getId));
+        return itemDtos;
     }
 
     @Override
-    public ItemDto getItemById(long id) {
+    public ItemDto getItemById(long userId, long id) {
         itemValid(id);
-        return ItemMapper.toItemDto(repository.getById(id));
+        ItemDto itemDto = ItemMapper.toItemDto(repository.getById(id));
+        itemOwnerValid(itemDto, userId, id);
+        itemDto.setComments(addComments(id));
+        return itemDto;
     }
 
     @Override
@@ -81,6 +91,42 @@ public class ItemServiceImpl implements ItemService {
         }
         item.setId(id);
         return ItemMapper.toItemDto(repository.save(item));
+    }
+
+    @Transactional
+    @Override
+    public CommentDto saveComment(long userId, CommentDto commentDto, long itemId) {
+        if (bookingRepository.findBookingByUserIdAndItemId(userId, itemId, LocalDateTime.now()).isEmpty()) {
+            log.error("Пользователь с id {} не может оставлять комментарий к вещи с id {}!", userId, itemId);
+            throw new IncorrectParameterException("Этот пользователь не может оставлять комментарий к данной вещи!");
+        }
+        Comment comment = CommentMapper.toComment(commentDto);
+        comment.setItem(itemId);
+        comment.setAuthor(userId);
+        comment.setCreated(LocalDateTime.now());
+        commentRepository.save(comment);
+        commentDto = CommentMapper.toCommentDto(commentRepository.save(comment));
+        commentDto.setAuthorName(userService.getUserById(userId).getName());
+        return commentDto;
+    }
+
+    private List<CommentDto> addComments(long itemId) {
+        List<CommentDto> comments = new ArrayList<>();
+        for (Comment comment : commentRepository.findAll()) {
+            if (comment.getItem().equals(itemId)) {
+                CommentDto commentDto = CommentMapper.toCommentDto(comment);
+                commentDto.setAuthorName(userService.getUserById(comment.getAuthor()).getName());
+                comments.add(commentDto);
+            }
+        }
+        return comments;
+    }
+
+    private void itemOwnerValid(ItemDto itemDto, long userId, long id) {
+        if (repository.getById(id).getUserId().equals(userId)) {
+            itemDto.setLastBooking(bookingRepository.findLastBookingByItemId(id, LocalDateTime.now()));
+            itemDto.setNextBooking(bookingRepository.findNextBookingByItemId(id, LocalDateTime.now()));
+        }
     }
 
     private void userValid(long userId) {

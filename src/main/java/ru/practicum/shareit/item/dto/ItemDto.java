@@ -4,12 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.CommentDto;
 
-import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Data
 @AllArgsConstructor
@@ -24,6 +24,7 @@ public class ItemDto {
     @NotBlank(message = "Ошибка: описание пустое или содержит только пробелы")
     private String description;
     private Boolean available;
-    private Booking lastBooking;
-    private Booking nextBooking;
+    private Optional lastBooking;
+    private Optional nextBooking;
+    private List<CommentDto> comments;
 }

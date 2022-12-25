@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -13,15 +12,9 @@ import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +29,11 @@ public class BookingServiceImpl implements BookingService {
     private final ItemService itemService;
     private final UserService userService;
 
+    @Transactional
     @Override
     public BookingDtoOut saveBooking(long bookerId, BookingDtoIn bookingDtoIn) {
         userValid(bookerId);
-        if (itemService.getItemById(bookingDtoIn.getItemId()).getAvailable().equals(false)) {
+        if (itemService.getItemById(bookerId, bookingDtoIn.getItemId()).getAvailable().equals(false)) {
             log.error("Этой вещи нет в наличии!");
             throw new IncorrectParameterException("Этой вещи нет в наличии!");
         }
@@ -62,9 +56,8 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = BookingMapper.toBooking(bookerId, bookingDtoIn);
         booking.setStatus(BookingStatus.WAITING);
         repository.save(booking);
-        BookingDtoOut bookingDtoOut = BookingMapper.toBookingDtoOut(booking);
-        bookingDtoOut.setBooker(userService.getUserById(bookerId));
-        bookingDtoOut.setItem(itemService.getItemById(bookingDtoIn.getItemId()));
+        BookingDtoOut bookingDtoOut = setBookerAndItem(booking, userService.getUserById(bookerId),
+                itemService.getItemById(bookerId, bookingDtoIn.getItemId()));
         return bookingDtoOut;
     }
 
@@ -75,22 +68,23 @@ public class BookingServiceImpl implements BookingService {
             log.error("Пользователь с id {} не имеет доступа к бронированию с id {}!", userId, id);
             throw new NotFoundException("Пользователь не имеет доступа к этому бронированию!");
         }
-        BookingDtoOut bookingDtoOut = BookingMapper.toBookingDtoOut(repository.getById(id));
-        bookingDtoOut.setBooker(userService.getUserById(repository.getById(id).getBookerId()));
-        bookingDtoOut.setItem(itemService.getItemById(repository.getById(id).getItemId()));
+        BookingDtoOut bookingDtoOut = setBookerAndItem(repository.getById(id),
+                userService.getUserById(repository.getById(id).getBookerId()), itemService.getItemById(userId,
+                        repository.getById(id).getItemId()));
         return bookingDtoOut;
     }
 
+    @Transactional
     @Override
     public BookingDtoOut updateBooking(long ownerId, String approved, long id) {
         userValid(ownerId);
         bookingValid(id);
-        if (!repository.findOwnerIdByBookingId(id).equals(ownerId)){
+        if (!repository.findOwnerIdByBookingId(id).equals(ownerId)) {
             log.error("Пользователь с id {} не имеет доступа к бронированию с id {}!", ownerId, id);
             throw new NotFoundException("Пользователь не имеет доступа к этому бронированию!");
         }
         Booking booking = repository.getById(id);
-        if (booking.getStatus().equals(BookingStatus.APPROVED)){
+        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
             log.error("Поменять статус бронирования с id {} уже нельзя!", id);
             throw new IncorrectParameterException("Поменять статус этого бронирования уже нельзя!");
         }
@@ -101,9 +95,8 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(BookingStatus.REJECTED);
         }
         repository.save(booking);
-        BookingDtoOut bookingDtoOut = BookingMapper.toBookingDtoOut(booking);
-        bookingDtoOut.setBooker(userService.getUserById(repository.getById(id).getBookerId()));
-        bookingDtoOut.setItem(itemService.getItemById(repository.getById(id).getItemId()));
+        BookingDtoOut bookingDtoOut = setBookerAndItem(booking, userService.getUserById(repository.getById(id).getBookerId()),
+                itemService.getItemById(ownerId, repository.getById(id).getItemId()));
         return bookingDtoOut;
     }
 
@@ -112,42 +105,9 @@ public class BookingServiceImpl implements BookingService {
         userValid(bookerId);
         List<BookingDtoOut> bookingDtoOuts = new ArrayList<>();
         for (Booking booking : repository.findAllByBookerIdOrderByEndDesc(bookerId)) {
-            BookingDtoOut bookingDtoOut = BookingMapper.toBookingDtoOut(booking);
-            bookingDtoOut.setBooker(userService.getUserById(repository.getById(bookerId).getBookerId()));
-            bookingDtoOut.setItem(itemService.getItemById(booking.getItemId()));
-            switch (state) {
-                case "ALL":
-                    bookingDtoOuts.add(bookingDtoOut);
-                    break;
-                case "CURRENT":
-                    if (booking.getStart().isBefore(LocalDateTime.now()) && booking.getEnd().isAfter(LocalDateTime.now())) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "PAST":
-                    if (booking.getEnd().isBefore(LocalDateTime.now())) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "FUTURE":
-                    if (booking.getStart().isAfter(LocalDateTime.now())) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "WAITING":
-                    if (booking.getStatus().equals(BookingStatus.WAITING)) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "REJECTED":
-                    if (booking.getStatus().equals(BookingStatus.REJECTED)) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                default:
-                    log.error("Unknown state: {}", state);
-                    throw new IncorrectParameterException("Unknown state: " + state);
-            }
+            BookingDtoOut bookingDtoOut = setBookerAndItem(booking, userService.getUserById(repository.getById(bookerId).getBookerId()),
+                    itemService.getItemById(bookerId, booking.getItemId()));
+            addBookingsByState(booking, bookingDtoOuts, bookingDtoOut, state);
         }
         return bookingDtoOuts;
     }
@@ -157,50 +117,55 @@ public class BookingServiceImpl implements BookingService {
         userValid(ownerId);
         List<BookingDtoOut> bookingDtoOuts = new ArrayList<>();
         for (Booking booking : repository.findAllByOwnerId(ownerId)) {
-            BookingDtoOut bookingDtoOut = BookingMapper.toBookingDtoOut(booking);
-            bookingDtoOut.setBooker(userService.getUserById(booking.getBookerId()));
-            bookingDtoOut.setItem(itemService.getItemById(booking.getItemId()));
-            switch (state) {
-                case "ALL":
-                    bookingDtoOuts.add(bookingDtoOut);
-                    break;
-                case "CURRENT":
-                    if (booking.getStart().isBefore(LocalDateTime.now()) && booking.getEnd().isAfter(LocalDateTime.now())) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "PAST":
-                    if (booking.getEnd().isBefore(LocalDateTime.now())) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "FUTURE":
-                    if (booking.getStart().isAfter(LocalDateTime.now())) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "WAITING":
-                    if (booking.getStatus().equals(BookingStatus.WAITING)) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                case "REJECTED":
-                    if (booking.getStatus().equals(BookingStatus.REJECTED)) {
-                        bookingDtoOuts.add(bookingDtoOut);
-                    }
-                    break;
-                default:
-                    log.error("Unknown state: {}", state);
-                    throw new IncorrectParameterException("Unknown state: " + state);
-            }
+            BookingDtoOut bookingDtoOut = setBookerAndItem(booking, userService.getUserById(booking.getBookerId()),
+                    itemService.getItemById(ownerId, booking.getItemId()));
+            addBookingsByState(booking, bookingDtoOuts, bookingDtoOut, state);
         }
         return bookingDtoOuts;
     }
 
-    /*@Override
-    public List<Booking> getLastBookingByItemId(long itemId){
-        return repository.getLastBookingByItemId(itemId);
-    }*/
+    private void addBookingsByState(Booking booking, List<BookingDtoOut> bookingDtoOuts, BookingDtoOut bookingDtoOut, String state) {
+        switch (state) {
+            case "ALL":
+                bookingDtoOuts.add(bookingDtoOut);
+                break;
+            case "CURRENT":
+                if (booking.getStart().isBefore(LocalDateTime.now()) && booking.getEnd().isAfter(LocalDateTime.now())) {
+                    bookingDtoOuts.add(bookingDtoOut);
+                }
+                break;
+            case "PAST":
+                if (booking.getEnd().isBefore(LocalDateTime.now())) {
+                    bookingDtoOuts.add(bookingDtoOut);
+                }
+                break;
+            case "FUTURE":
+                if (booking.getStart().isAfter(LocalDateTime.now())) {
+                    bookingDtoOuts.add(bookingDtoOut);
+                }
+                break;
+            case "WAITING":
+                if (booking.getStatus().equals(BookingStatus.WAITING)) {
+                    bookingDtoOuts.add(bookingDtoOut);
+                }
+                break;
+            case "REJECTED":
+                if (booking.getStatus().equals(BookingStatus.REJECTED)) {
+                    bookingDtoOuts.add(bookingDtoOut);
+                }
+                break;
+            default:
+                log.error("Unknown state: {}", state);
+                throw new IncorrectParameterException("Unknown state: " + state);
+        }
+    }
+
+    private BookingDtoOut setBookerAndItem(Booking booking, UserDto userDto, ItemDto itemDto) {
+        BookingDtoOut bookingDtoOut = BookingMapper.toBookingDtoOut(booking);
+        bookingDtoOut.setBooker(userDto);
+        bookingDtoOut.setItem(itemDto);
+        return bookingDtoOut;
+    }
 
     private void userValid(long userId) {
         if (!userService.getAllUsers().stream()

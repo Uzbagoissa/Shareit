@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -36,10 +35,10 @@ public class UserServiceImpl implements UserService {
         repository.deleteById(id);
     }
 
-    @Override                                               //в данном случае считаю, что getById() будет лучше, чем findById(),
-    public UserDto getUserById(long id) {                   // т.к. в методе getUserById есть валидация id - userValid(id),
-        userValid(id);                                      //что исключает выбрасывание NullPointEx при обращении getById() к несуществующему пользователю
-        return UserMapper.toUserDto(repository.getById(id));// , а findById() - лишняя возня с Optional
+    @Override
+    public UserDto getUserById(long id) {
+        userValid(id);
+        return UserMapper.toUserDto(repository.getById(id));
     }
 
     @Transactional

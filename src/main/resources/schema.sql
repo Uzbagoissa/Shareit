@@ -23,11 +23,21 @@ CREATE TABLE IF NOT EXISTS items
 CREATE TABLE IF NOT EXISTS bookings
 (
     id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    start_time        TIMESTAMP NOT NULL,
-    end_time          TIMESTAMP NOT NULL,
+    start_time        TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    end_time          TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     item_id           BIGINT NOT NULL,
     booker_id         BIGINT NOT NULL,
     status            VARCHAR(320) NOT NULL,
     CONSTRAINT   fk_bookings_to_items           FOREIGN KEY (item_id) REFERENCES items (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS comments
+(
+    id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    texts             VARCHAR NOT NULL,
+    item_id           BIGINT NOT NULL,
+    author_id         BIGINT NOT NULL,
+    created           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT   fk_comments_to_items FOREIGN KEY (item_id) REFERENCES items (id) ON DELETE CASCADE
 );
 

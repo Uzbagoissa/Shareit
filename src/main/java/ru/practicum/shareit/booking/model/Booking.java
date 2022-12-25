@@ -5,12 +5,13 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings", schema = "public")
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +27,10 @@ public class Booking {
     @Column(name = "status", nullable = false)
     private BookingStatus status;
 
-    @Column(name = "booker_Id", nullable = false)
+    @Column(name = "booker_id", nullable = false)
     private Long bookerId;
 
-    @Column(name = "item_Id", nullable = false)
+    @Column(name = "item_id", nullable = false)
     private Long itemId;
 
     @Transient
