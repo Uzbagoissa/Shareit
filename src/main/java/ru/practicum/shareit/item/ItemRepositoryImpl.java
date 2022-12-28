@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
@@ -8,10 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@FieldDefaults(makeFinal = true, level= AccessLevel.PRIVATE)
 public class ItemRepositoryImpl implements ItemRepositoryCustom {
 
-    private final ItemRepository repository;
-    private final List<String> searchHistory = new ArrayList<>();
+    ItemRepository repository;
+    List<String> searchHistory = new ArrayList<>();
 
     public ItemRepositoryImpl(@Lazy ItemRepository repository) {
         this.repository = repository;

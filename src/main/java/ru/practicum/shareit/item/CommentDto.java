@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -9,11 +10,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class CommentDto {
-    private Long id;
+    Long id;
     @NonNull
     @NotBlank(message = "Ошибка: комментарий пустой или содержит только пробелы")
-    private String text;
-    private String authorName;
-    private LocalDateTime created;
+    String text;
+    String authorName;
+    LocalDateTime created;
 }

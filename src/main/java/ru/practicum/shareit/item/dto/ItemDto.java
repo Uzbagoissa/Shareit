@@ -1,9 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.item.CommentDto;
 
 import javax.validation.constraints.NotBlank;
@@ -15,16 +13,17 @@ import java.util.Optional;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class ItemDto {
-    private long id;
+    long id;
     @NotNull
     @NotBlank(message = "Ошибка: имя пустое или содержит только пробелы")
-    private String name;
+    String name;
     @NotNull
     @NotBlank(message = "Ошибка: описание пустое или содержит только пробелы")
-    private String description;
-    private Boolean available;
-    private Optional lastBooking;
-    private Optional nextBooking;
-    private List<CommentDto> comments;
+    String description;
+    Boolean available;
+    Optional lastBooking;
+    Optional nextBooking;
+    List<CommentDto> comments;
 }

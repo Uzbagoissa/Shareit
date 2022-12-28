@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,22 +14,24 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class Comment {
+    public static final String commentTable = "commentTable";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "texts", nullable = false)
-    private String text;
+    String text;
 
     @Column(name = "item_id", nullable = false)
-    private Long item;
+    Long item;
 
     @Column(name = "author_id", nullable = false)
-    private Long author;
+    Long author;
 
     @Column(name = "created", nullable = false)
-    private LocalDateTime created;
+    LocalDateTime created;
 
     @Override
     public boolean equals(Object o) {
