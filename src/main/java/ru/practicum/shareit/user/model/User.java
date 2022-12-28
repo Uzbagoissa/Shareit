@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
-@FieldDefaults(level= AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     public static final String userTable = "userTable";
     @Id

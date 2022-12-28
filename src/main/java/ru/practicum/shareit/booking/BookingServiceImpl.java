@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-@FieldDefaults(makeFinal = true, level= AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class BookingServiceImpl implements BookingService {
     BookingRepository repository;
     ItemService itemService;

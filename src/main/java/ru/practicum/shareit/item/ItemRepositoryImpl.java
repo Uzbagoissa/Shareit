@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@FieldDefaults(makeFinal = true, level= AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ItemRepositoryImpl implements ItemRepositoryCustom {
 
     ItemRepository repository;

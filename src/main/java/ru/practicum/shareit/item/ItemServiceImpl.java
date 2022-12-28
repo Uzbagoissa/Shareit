@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@FieldDefaults(makeFinal = true, level= AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ItemServiceImpl implements ItemService {
     UserService userService;
     BookingRepository bookingRepository;
