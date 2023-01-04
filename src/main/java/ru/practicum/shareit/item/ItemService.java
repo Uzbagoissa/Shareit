@@ -14,4 +14,7 @@ public interface ItemService {
     ItemDto saveItem(long userId, ItemDto itemDto);
 
     ItemDto updateItem(long userId, ItemDto itemDto, long id);
+
+    CommentDto saveComment(long userId, CommentDto commentDto, long itemId);
+
 }

@@ -42,6 +42,14 @@ public class ItemController {
         return itemService.saveItem(userId, itemDto);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentDto saveComment(@RequestHeader("X-Sharer-User-Id") long userId,
+                                  @Valid @RequestBody CommentDto commentDto,
+                                  @PathVariable("itemId") long itemId) {
+        log.info("Добавили новый комментарий");
+        return itemService.saveComment(userId, commentDto, itemId);
+    }
+
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
                               @RequestBody ItemDto itemDto,
