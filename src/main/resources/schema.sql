@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS items
     name              VARCHAR(320) NOT NULL,
     description       VARCHAR(320) NOT NULL,
     available         BOOLEAN NOT NULL,
-    request           VARCHAR(320),
+    request_id        BIGINT,
     CONSTRAINT   pk_items           PRIMARY KEY (id),
     CONSTRAINT   name_is_blank1     CHECK (name NOT LIKE ' ' AND name NOT LIKE ''),
     CONSTRAINT   fk_items_to_users  FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
@@ -42,5 +42,15 @@ CREATE TABLE IF NOT EXISTS comments
     created           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CONSTRAINT   pk_comments            PRIMARY KEY (id),
     CONSTRAINT   fk_comments_to_items   FOREIGN KEY (item_id) REFERENCES items (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS requests
+(
+    id                BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    description       VARCHAR NOT NULL,
+    requester_id      BIGINT NOT NULL,
+    created           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT   pk_requests            PRIMARY KEY (id),
+    CONSTRAINT   fk_requests_to_users   FOREIGN KEY (requester_id) REFERENCES users (id) ON DELETE CASCADE
 );
 

@@ -2,8 +2,11 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.item.Comment;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "items", schema = "public")
@@ -29,8 +32,8 @@ public class Item {
     @Column(name = "available", nullable = false)
     Boolean available;
 
-    @Column(name = "request", nullable = false)
-    String request;
+    @Column(name = "request_id", nullable = false)
+    Long requestId;
 
     @Override
     public boolean equals(Object o) {

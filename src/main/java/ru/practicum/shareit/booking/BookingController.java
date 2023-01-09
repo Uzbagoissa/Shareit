@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
+import ru.practicum.shareit.exceptions.IncorrectParameterException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,16 +26,36 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoOut> getAllBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") long bookerId,
-                                                        @RequestParam(value = "state", defaultValue = "ALL") String state) {
+                                                        @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                        @RequestParam(value = "from", defaultValue = "0") long from,
+                                                        @RequestParam(value = "size", defaultValue = "10") long size) {
+        if (from < 0) {
+            log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+            throw new IncorrectParameterException("from");
+        }
+        if (size <= 0) {
+            log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+            throw new IncorrectParameterException("size");
+        }
         log.info("Получили все бронирования пользователя с id {}", bookerId);
-        return bookingService.getAllBookingsByBookerId(bookerId, state);
+        return bookingService.getAllBookingsByBookerId(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDtoOut> getAllBookingsByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                                                       @RequestParam(value = "state", defaultValue = "ALL") String state) {
+                                                       @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                       @RequestParam(value = "from", defaultValue = "0") long from,
+                                                       @RequestParam(value = "size", defaultValue = "10") long size) {
+        if (from < 0) {
+            log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+            throw new IncorrectParameterException("from");
+        }
+        if (size <= 0) {
+            log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+            throw new IncorrectParameterException("size");
+        }
         log.info("Получили все забронированные вещи пользователя с id {}", ownerId);
-        return bookingService.getAllBookingsByOwnerId(ownerId, state);
+        return bookingService.getAllBookingsByOwnerId(ownerId, state, from, size);
     }
 
     @PostMapping

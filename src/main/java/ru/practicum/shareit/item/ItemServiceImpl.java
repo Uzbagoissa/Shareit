@@ -12,6 +12,8 @@ import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -34,15 +36,18 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemDto> getAllItems(long userId) {
+    public List<ItemDto> getAllItems(long userId, long from, long size) {
         userValid(userId);
         List<ItemDto> itemDtos = ItemMapper.toListItemDto(repository.findByUserId(userId));
         for (ItemDto itemDto : itemDtos) {
             itemOwnerValid(itemDto, userId, itemDto.getId());
             itemDto.setComments(addComments(itemDto.getId()));
         }
-        itemDtos.sort(Comparator.comparing(ItemDto::getId));
-        return itemDtos;
+        return itemDtos.stream()
+                .skip(from)
+                .limit(size)
+                .sorted(Comparator.comparing(ItemDto::getId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -55,8 +60,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItems(String text) {
-        return ItemMapper.toListItemDto(repository.searchItems(text));
+    public List<ItemDto> searchItems(String text, long from, long size) {
+        return ItemMapper.toListItemDto(repository.searchItems(text)).stream()
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Transactional

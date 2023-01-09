@@ -14,11 +14,13 @@ import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getAllBookingsByBookerId(long bookerId, String state) {
+    public List<BookingDtoOut> getAllBookingsByBookerId(long bookerId, String state, long from, long size) {
         userValid(bookerId);
         List<BookingDtoOut> bookingDtoOuts = new ArrayList<>();
         for (Booking booking : repository.findAllByBookerIdOrderByEndDesc(bookerId)) {
@@ -112,11 +114,14 @@ public class BookingServiceImpl implements BookingService {
                     itemService.getItemById(bookerId, booking.getItemId()));
             addBookingsByState(booking, bookingDtoOuts, bookingDtoOut, state);
         }
-        return bookingDtoOuts;
+        return bookingDtoOuts.stream()
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDtoOut> getAllBookingsByOwnerId(long ownerId, String state) {
+    public List<BookingDtoOut> getAllBookingsByOwnerId(long ownerId, String state, long from, long size) {
         userValid(ownerId);
         List<BookingDtoOut> bookingDtoOuts = new ArrayList<>();
         for (Booking booking : repository.findAllByOwnerId(ownerId)) {
@@ -124,7 +129,10 @@ public class BookingServiceImpl implements BookingService {
                     itemService.getItemById(ownerId, booking.getItemId()));
             addBookingsByState(booking, bookingDtoOuts, bookingDtoOut, state);
         }
-        return bookingDtoOuts;
+        return bookingDtoOuts.stream()
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     private void addBookingsByState(Booking booking, List<BookingDtoOut> bookingDtoOuts, BookingDtoOut bookingDtoOut, String state) {
