@@ -1,13 +1,17 @@
 package ru.practicum.shareit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -33,6 +37,26 @@ public class UserServiceImplTest {
     private final EntityManager em;
     private final UserService service;
     private final JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void addDate() {
+        List<UserDto> sourceUsers = List.of(
+                makeUserDto("ivan@mail.ru", "Иван"),
+                makeUserDto("petr@mail.ru", "Петр"),
+                makeUserDto("vase@mail.ru", "Вася")
+        );
+        for (UserDto userDto : sourceUsers) {
+            User entity = toUser(userDto);
+            em.persist(entity);
+        }
+        em.flush();
+    }
+
+    @AfterEach
+    void tearDown() {
+        jdbcTemplate.update("DELETE FROM USERS");
+        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
+    }
 
     @Test
     void saveUser() {
@@ -104,27 +128,6 @@ public class UserServiceImplTest {
     @Test
     void userValid() {
         assertThrows(NotFoundException.class, () -> {service.getUserById(8);});
-    }
-
-    @BeforeEach
-    void addDate() {
-        List<UserDto> sourceUsers = List.of(
-                makeUserDto("ivan@mail.ru", "Иван"),
-                makeUserDto("petr@mail.ru", "Петр"),
-                makeUserDto("vase@mail.ru", "Вася")
-        );
-
-        for (UserDto userDto : sourceUsers) {
-            User entity = toUser(userDto);
-            em.persist(entity);
-        }
-        em.flush();
-    }
-
-    @AfterEach
-    void tearDown() {
-        jdbcTemplate.update("DELETE FROM USERS");
-        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
     }
 
     private UserDto makeUserDto(String email, String name) {

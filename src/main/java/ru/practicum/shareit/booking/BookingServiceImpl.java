@@ -184,7 +184,7 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList())
                 .contains(userId)) {
             log.error("Пользователя с id не существует! {}", userId);
-            throw new NotFoundException("Пользователя с id не существует!");
+            throw new NotFoundException("Пользователя с таким id не существует!");
         }
     }
 
@@ -194,7 +194,7 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList())
                 .contains(id)) {
             log.error("Бронирования с id не существует! {}", id);
-            throw new NotFoundException("Бронирования с id не существует!");
+            throw new NotFoundException("Бронирования с таким id не существует!");
         }
     }
 

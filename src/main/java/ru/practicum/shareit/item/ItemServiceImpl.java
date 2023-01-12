@@ -146,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList())
                 .contains(userId)) {
             log.error("Пользователя с id не существует! {}", userId);
-            throw new NotFoundException("Пользователя с id не существует!");
+            throw new NotFoundException("Пользователя с таким id не существует!");
         }
     }
 
@@ -156,7 +156,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList())
                 .contains(id)) {
             log.error("Вещи с id не существует! {}", id);
-            throw new NotFoundException("Вещи с id не существует!");
+            throw new NotFoundException("Вещи с таким id не существует!");
         }
     }
 
