@@ -93,36 +93,39 @@ public class UserServiceImplTest {
         List<User> usersAfterRemove = queryAfterRemove.getResultList();
         assertEquals(usersAfterRemove.size(), users.size() - 1);
         assertThat(usersAfterRemove, hasSize(2));
+        assertEquals(usersAfterRemove.get(0).getName(), "Иван");
         assertEquals(usersAfterRemove.get(0).getEmail(), "ivan@mail.ru");
+        assertEquals(usersAfterRemove.get(1).getName(), "Вася");
         assertEquals(usersAfterRemove.get(1).getEmail(), "vase@mail.ru");
     }
 
     @Test
     void getUserById() {
         UserDto userDto = service.getUserById(2);
-        assertEquals(userDto.getEmail(), "petr@mail.ru");
+        TypedQuery<User> query = em.createQuery("Select u from User u where u.id = 2", User.class);
+        User user = query.getSingleResult();
+        assertEquals(user.getId(), userDto.getId());
+        assertEquals(user.getName(), userDto.getName());
+        assertEquals(user.getEmail(), userDto.getEmail());
     }
 
     @Test
     void updateUser() {
-        UserDto userDto = makeUserDto("kent@mail.ru", "Петр");
-        service.updateUser(userDto, 2);
+        UserDto userDto = service.updateUser(makeUserDto("kent@mail.ru", "Петр"), 2);
         TypedQuery<User> query = em.createQuery("Select u from User u where u.id = 2", User.class);
         User user = query.getSingleResult();
-        assertEquals(user.getName(), "Петр");
-        assertEquals(user.getEmail(), "kent@mail.ru");
-        UserDto userDto2 = makeUserDto(null, "Ваня");
-        service.updateUser(userDto2, 1);
+        assertEquals(user.getName(), userDto.getName());
+        assertEquals(user.getEmail(), userDto.getEmail());
+        UserDto userDto2 = service.updateUser(makeUserDto(null, "Ваня"), 1);
         query = em.createQuery("Select u from User u where u.id = 1", User.class);
         User user2 = query.getSingleResult();
-        assertEquals(user2.getName(), "Ваня");
-        assertEquals(user2.getEmail(), "ivan@mail.ru");
-        UserDto userDto3 = makeUserDto("ivanich@mail.ru", null);
-        service.updateUser(userDto3, 1);
+        assertEquals(user2.getName(), userDto2.getName());
+        assertEquals(user2.getEmail(), userDto2.getEmail());
+        UserDto userDto3 = service.updateUser(makeUserDto("ivanich@mail.ru", null), 1);
         query = em.createQuery("Select u from User u where u.id = 1", User.class);
         User user3 = query.getSingleResult();
-        assertEquals(user3.getName(), "Ваня");
-        assertEquals(user3.getEmail(), "ivanich@mail.ru");
+        assertEquals(user3.getName(), userDto3.getName());
+        assertEquals(user3.getEmail(), userDto3.getEmail());
     }
 
     @Test
