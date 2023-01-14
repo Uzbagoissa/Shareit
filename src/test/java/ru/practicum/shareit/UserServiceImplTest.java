@@ -116,11 +116,13 @@ public class UserServiceImplTest {
         User user = query.getSingleResult();
         assertEquals(user.getName(), userDto.getName());
         assertEquals(user.getEmail(), userDto.getEmail());
+
         UserDto userDto2 = service.updateUser(makeUserDto(null, "Ваня"), 1);
         query = em.createQuery("Select u from User u where u.id = 1", User.class);
         User user2 = query.getSingleResult();
         assertEquals(user2.getName(), userDto2.getName());
         assertEquals(user2.getEmail(), userDto2.getEmail());
+
         UserDto userDto3 = service.updateUser(makeUserDto("ivanich@mail.ru", null), 1);
         query = em.createQuery("Select u from User u where u.id = 1", User.class);
         User user3 = query.getSingleResult();

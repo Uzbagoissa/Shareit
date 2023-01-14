@@ -92,7 +92,8 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        when(userService.getUserById(1))
+        long userId = 1;
+        when(userService.getUserById(userId))
                 .thenReturn(userDtos.get(0));
         mvc.perform(get("/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -106,8 +107,9 @@ public class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
+        long userId = 1;
         UserDto userDto = makeUserDto("ivanko@mail.ru", "Иваныч");
-        when(userService.updateUser(userDto, 1))
+        when(userService.updateUser(userDto, userId))
                 .thenReturn(userDto);
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(userDto))
@@ -122,14 +124,16 @@ public class UserControllerTest {
 
     @Test
     void removeUser() throws Exception {
+        long userId = 1;
         mvc.perform(delete("/users/1"))
                 .andExpect(status().isOk());
-        verify(userService).removeUser(1);
+        verify(userService).removeUser(userId);
     }
 
     @Test
     void getNotExistUserById() throws Exception {
-        when(userService.getUserById(100))
+        long userId = 100;
+        when(userService.getUserById(userId))
                 .thenThrow(new NotFoundException("Пользователя с таким id не существует!"));
         mvc.perform(get("/users/100")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -147,6 +151,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+
         UserDto userDto1 = makeUserDto(null, "Иваныч");
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(userDto1))
@@ -154,6 +159,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+
         UserDto userDto2 = makeUserDto("incorrectmail", "Иваныч");
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(userDto2))

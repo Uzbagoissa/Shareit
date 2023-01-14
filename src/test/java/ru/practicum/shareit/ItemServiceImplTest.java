@@ -12,10 +12,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.item.Comment;
-import ru.practicum.shareit.item.CommentDto;
-import ru.practicum.shareit.item.CommentMapper;
-import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
@@ -127,6 +124,7 @@ public class ItemServiceImplTest {
         assertEquals(item.getDescription(), itemDto.getDescription());
         assertEquals(item.getAvailable(), itemDto.getAvailable());
         assertEquals(item.getRequestId(), itemDto.getRequestId());
+
         TypedQuery<Comment> queryBooking = em.createQuery("Select c from Comment c where c.item= :itemId and c.author= :authorOfCommentId", Comment.class);
         List<Comment> comments = queryBooking.setParameter("itemId", itemId).setParameter("authorOfCommentId", authorOfCommentId).getResultList();
         List<CommentDto> commentDtos = new ArrayList<>();
@@ -143,20 +141,24 @@ public class ItemServiceImplTest {
         String text1 = "еТл";
         String text2 = "СверЛ";
         String text3 = "коф";
+        String text4 = " ";
         long from = 0;
         long size = 10;
-        List<ItemDto> targetItems = service.searchItems(text1, from, size);
-        TypedQuery<Item> query= em.createQuery("Select i from Item i where i.id= 1", Item.class);
-        Item item = query.getSingleResult();
-        assertEquals(targetItems.get(0).getId(), item.getId());
-        targetItems = service.searchItems(text2, from, size);
-        query= em.createQuery("Select i from Item i where i.id= 2", Item.class);
-        item = query.getSingleResult();
-        assertEquals(targetItems.get(0).getId(), item.getId());
-        targetItems = service.searchItems(text3, from, size);
-        query= em.createQuery("Select i from Item i where i.id= 3", Item.class);
-        item = query.getSingleResult();
-        assertEquals(targetItems.get(0).getId(), item.getId());
+        List<ItemDto> targetItems1 = service.searchItems(text1, from, size);
+        TypedQuery<Item> query1 = em.createQuery("Select i from Item i where i.id= 1", Item.class);
+        Item item = query1.getSingleResult();
+        assertEquals(targetItems1.get(0).getId(), item.getId());
+
+        List<ItemDto>  targetItems2 = service.searchItems(text2, from, size);
+        TypedQuery<Item>  query2 = em.createQuery("Select i from Item i where i.id= 2", Item.class);
+        item = query2.getSingleResult();
+        assertEquals(targetItems2.get(0).getId(), item.getId());
+
+        List<ItemDto>  targetItems3 = service.searchItems(text3, from, size);
+        TypedQuery<Item> query3 = em.createQuery("Select i from Item i where i.id= 3", Item.class);
+        item = query3.getSingleResult();
+        assertEquals(targetItems3.get(0).getId(), item.getId());
+
     }
 
     @Test
@@ -167,16 +169,19 @@ public class ItemServiceImplTest {
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         Item item = query.setParameter("itemId", itemId).getSingleResult();
         assertEquals(item.getName(), itemDto1.getName());
+
         ItemDto itemDto2 = service.updateItem(userId, makeItemDto(null, "штуковина чтобы чисто", true, 1L), itemId);
         query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         item = query.setParameter("itemId", itemId).getSingleResult();
         assertEquals(item.getName(), "веник");
         assertEquals(item.getDescription(), itemDto2.getDescription());
+
         ItemDto itemDto3 = service.updateItem(userId, makeItemDto("веник", null, true, 1L), itemId);
         query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         item = query.setParameter("itemId", itemId).getSingleResult();
         assertEquals(item.getDescription(), "штуковина чтобы чисто");
         assertEquals(item.getName(), itemDto3.getName());
+
         ItemDto itemDto4 = service.updateItem(userId, makeItemDto("веник", "штуковина чтобы чисто", null, 1L), itemId);
         query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         item = query.setParameter("itemId", itemId).getSingleResult();
