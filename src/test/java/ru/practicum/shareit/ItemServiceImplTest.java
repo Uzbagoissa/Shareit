@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -22,6 +23,7 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +42,20 @@ public class ItemServiceImplTest {
     private final EntityManager em;
     private final ItemService service;
     private final JdbcTemplate jdbcTemplate;
+    private final long from = 0;
+    private final long size = 10;
 
     @BeforeEach
     void addDate() {
-        jdbcTemplate.update("INSERT INTO USERS(ID, NAME, EMAIL) VALUES (1, 'Иван', 'ivan@mail.ru')");
-        jdbcTemplate.update("INSERT INTO USERS(ID, NAME, EMAIL) VALUES (2, 'Петр', 'petr@mail.ru')");
-        jdbcTemplate.update("INSERT INTO USERS(ID, NAME, EMAIL) VALUES (3, 'Вася', 'vase@mail.ru')");
+        List<User> sourceUsers = List.of(
+                makeUser("ivan@mail.ru", "Иван"),
+                makeUser("petr@mail.ru", "Петр"),
+                makeUser("vase@mail.ru", "Вася")
+        );
+        for (User user : sourceUsers) {
+            em.persist(user);
+        }
+        em.flush();
 
         List<Item> sourceItems = List.of(
                 makeItemForDB(1L, "метла", "штука для приборки", true, 1L),
@@ -57,20 +67,32 @@ public class ItemServiceImplTest {
         }
         em.flush();
 
-        jdbcTemplate.update("INSERT INTO BOOKINGS(ID, START_TIME, END_TIME, ITEM_ID, BOOKER_ID, STATUS) " +
-                "VALUES (1, '2022-03-08 12:30:54', '2022-03-09 12:30:54', 2, 3, 'APPROVED')");
+        List<Booking> sourceBookings = List.of(
+                makeBooking(LocalDateTime.of(2022,3,8,12,30,54),
+                        LocalDateTime.of(2022,3,9,12,30,54),
+                        2L, 3L, BookingStatus.APPROVED)
+        );
+        for (Booking booking : sourceBookings) {
+            em.persist(booking);
+        }
+        em.flush();
     }
 
     @AfterEach
     void tearDown() {
+        jdbcTemplate.update("DELETE FROM USERS");
         jdbcTemplate.update("DELETE FROM ITEMS");
+        jdbcTemplate.update("DELETE FROM BOOKINGS");
+        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
         jdbcTemplate.update("ALTER TABLE ITEMS ALTER COLUMN ID RESTART WITH 1");
+        jdbcTemplate.update("ALTER TABLE BOOKINGS ALTER COLUMN ID RESTART WITH 1");
     }
 
     @Test
     void saveItem() {
         long userId = 2;
-        ItemDto itemDto = service.saveItem(userId, makeItemDto("камера", "делать видео", true, 2L));
+        ItemDto itemDto = service.saveItem(userId,
+                makeItemDto("камера", "делать видео", true, 2L));
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.name = :name", Item.class);
         Item item = query.setParameter("name", itemDto.getName()).getSingleResult();
         assertThat(item.getId(), notNullValue());
@@ -90,8 +112,6 @@ public class ItemServiceImplTest {
     @Test
     void getAllItems() {
         long userId = 1;
-        long from = 0;
-        long size = 10;
         TypedQuery<Item> query= em.createQuery("Select i from Item i where i.userId = :userId", Item.class);
         List<Item> items = query.setParameter("userId", userId).getResultList();
         List<ItemDto> targetItems = service.getAllItems(userId, from, size);
@@ -125,8 +145,10 @@ public class ItemServiceImplTest {
         assertEquals(item.getAvailable(), itemDto.getAvailable());
         assertEquals(item.getRequestId(), itemDto.getRequestId());
 
-        TypedQuery<Comment> queryBooking = em.createQuery("Select c from Comment c where c.item= :itemId and c.author= :authorOfCommentId", Comment.class);
-        List<Comment> comments = queryBooking.setParameter("itemId", itemId).setParameter("authorOfCommentId", authorOfCommentId).getResultList();
+        TypedQuery<Comment> queryBooking = em.createQuery("Select c from Comment c where c.item= :itemId" +
+                " and c.author= :authorOfCommentId", Comment.class);
+        List<Comment> comments = queryBooking.setParameter("itemId", itemId).setParameter("authorOfCommentId",
+                authorOfCommentId).getResultList();
         List<CommentDto> commentDtos = new ArrayList<>();
         for (Comment comment : comments) {
             commentDtos.add(CommentMapper.toCommentDto(comment));
@@ -141,9 +163,6 @@ public class ItemServiceImplTest {
         String text1 = "еТл";
         String text2 = "СверЛ";
         String text3 = "коф";
-        String text4 = " ";
-        long from = 0;
-        long size = 10;
         List<ItemDto> targetItems1 = service.searchItems(text1, from, size);
         TypedQuery<Item> query1 = em.createQuery("Select i from Item i where i.id= 1", Item.class);
         Item item = query1.getSingleResult();
@@ -158,37 +177,41 @@ public class ItemServiceImplTest {
         TypedQuery<Item> query3 = em.createQuery("Select i from Item i where i.id= 3", Item.class);
         item = query3.getSingleResult();
         assertEquals(targetItems3.get(0).getId(), item.getId());
-
     }
 
     @Test
     void updateItem() {
         long userId = 1;
         long itemId = 1;
-        ItemDto itemDto1 = service.updateItem(userId, makeItemDto("веник", "штука для приборки", true, 1L), itemId);
+        ItemDto itemDto1 = service.updateItem(userId, makeItemDto("веник", "штука для приборки",
+                true, 1L), itemId);
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         Item item = query.setParameter("itemId", itemId).getSingleResult();
         assertEquals(item.getName(), itemDto1.getName());
 
-        ItemDto itemDto2 = service.updateItem(userId, makeItemDto(null, "штуковина чтобы чисто", true, 1L), itemId);
+        ItemDto itemDto2 = service.updateItem(userId, makeItemDto(null, "штуковина чтобы чисто",
+                true, 1L), itemId);
         query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         item = query.setParameter("itemId", itemId).getSingleResult();
         assertEquals(item.getName(), "веник");
         assertEquals(item.getDescription(), itemDto2.getDescription());
 
-        ItemDto itemDto3 = service.updateItem(userId, makeItemDto("веник", null, true, 1L), itemId);
+        ItemDto itemDto3 = service.updateItem(userId, makeItemDto("веник", null, true,
+                1L), itemId);
         query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         item = query.setParameter("itemId", itemId).getSingleResult();
         assertEquals(item.getDescription(), "штуковина чтобы чисто");
         assertEquals(item.getName(), itemDto3.getName());
 
-        ItemDto itemDto4 = service.updateItem(userId, makeItemDto("веник", "штуковина чтобы чисто", null, 1L), itemId);
+        ItemDto itemDto4 = service.updateItem(userId, makeItemDto("веник", "штуковина чтобы чисто",
+                null, 1L), itemId);
         query = em.createQuery("Select i from Item i where i.id= :itemId", Item.class);
         item = query.setParameter("itemId", itemId).getSingleResult();
         assertEquals(item.getAvailable(), true);
         assertEquals(item.getName(), itemDto4.getName());
     }
 
+    /*попытка изменить вещь пользователем, который не является ее владельцем*/
     @Test
     void updateItemByIncorrectUser() {
         long userId = 1;
@@ -205,12 +228,14 @@ public class ItemServiceImplTest {
         CommentDto commentDto = new CommentDto();
         commentDto.setText(text);
         CommentDto commentDtoCheck = service.saveComment(userId, commentDto, itemId);
-        TypedQuery<Comment> query = em.createQuery("Select c from Comment c where c.item= :itemId and c.author= :userId", Comment.class);
+        TypedQuery<Comment> query = em.createQuery("Select c from Comment c where c.item= :itemId" +
+                " and c.author= :userId", Comment.class);
         Comment comment = query.setParameter("itemId", itemId).setParameter("userId", userId).getSingleResult();
         assertEquals(commentDtoCheck.getId(), comment.getId());
         assertEquals(commentDtoCheck.getText(), comment.getText());
     }
 
+    /*попытка оставить комментарий пользователем, который не бронировал вещь*/
     @Test
     void saveCommentByIncorrectUser() {
         long userId = 2;
@@ -243,5 +268,22 @@ public class ItemServiceImplTest {
         itemDto.setAvailable(available);
         itemDto.setRequestId(requestId);
         return itemDto;
+    }
+
+    private User makeUser(String email, String name) {
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        return user;
+    }
+
+    private Booking makeBooking(LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId, BookingStatus status) {
+        Booking booking = new Booking();
+        booking.setStart(start);
+        booking.setEnd(end);
+        booking.setItemId(itemId);
+        booking.setBookerId(bookerId);
+        booking.setStatus(status);
+        return booking;
     }
 }

@@ -130,6 +130,7 @@ public class UserServiceImplTest {
         assertEquals(user3.getEmail(), userDto3.getEmail());
     }
 
+    /*получение несуществующего пользователя*/
     @Test
     void userValid() {
         assertThrows(NotFoundException.class, () -> {service.getUserById(8);});

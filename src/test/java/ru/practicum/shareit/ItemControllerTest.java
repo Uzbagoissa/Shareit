@@ -47,8 +47,10 @@ public class ItemControllerTest {
 
     @BeforeEach
     void addDate() {
-        itemDtos = List.of(new ItemDto(1, "метла", "штука для приборки", true, null, null, null, 1L),
-                new ItemDto(2, "дрель", "чтоб сверлить", true,null, null, null,  3L));
+        itemDtos = List.of(new ItemDto(1, "метла", "штука для приборки", true, null,
+                        null, null, 1L),
+                new ItemDto(2, "дрель", "чтоб сверлить", true,null,
+                        null, null,  3L));
     }
 
     @Test
@@ -95,6 +97,7 @@ public class ItemControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].requestId", Matchers.is(3)));
     }
 
+    /*указано отрицательно число номера страницы*/
     @Test
     void getAllItemsWithIncorrectParameterFrom() throws Exception {
         long userId = 1;
@@ -110,6 +113,7 @@ public class ItemControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /*указано количество вывода на страницу = 0*/
     @Test
     void getAllItemsWithIncorrectParameterSize() throws Exception {
         long userId = 1;
@@ -184,6 +188,7 @@ public class ItemControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].requestId", Matchers.is(2)));
     }
 
+    /*указано отрицательно число номера страницы*/
     @Test
     void searchItemsWithIncorrectParameterFrom() throws Exception {
         long userId = 1;
@@ -201,6 +206,7 @@ public class ItemControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /*указано количество вывода на страницу = 0*/
     @Test
     void searchItemsWithIncorrectParameterSize() throws Exception {
         long userId = 1;

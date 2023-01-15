@@ -130,6 +130,7 @@ public class UserControllerTest {
         verify(userService).removeUser(userId);
     }
 
+    /*получение несуществующего пользователя*/
     @Test
     void getNotExistUserById() throws Exception {
         long userId = 100;
@@ -142,6 +143,7 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /*сохранение пользователя с некорректными данными*/
     @Test
     void saveUserWithIncorrectFields() throws Exception {
         UserDto userDto = makeUserDto("ivanko@mail.ru", null);
