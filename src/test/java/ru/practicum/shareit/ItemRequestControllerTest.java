@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ItemRequestController.class)
 public class ItemRequestControllerTest {
-    private List<ItemRequestDtoOut> ItemRequestDtoOuts;
+    private List<ItemRequestDtoOut> itemRequestDtoOuts;
     @Autowired
     ObjectMapper mapper;
     @MockBean
@@ -47,7 +47,7 @@ public class ItemRequestControllerTest {
         Item item3 = new Item();
         item3.setName("кофемашина");
 
-        ItemRequestDtoOuts = List.of(new ItemRequestDtoOut(1L, "нужна штука, чтобы делать чисто",
+        itemRequestDtoOuts = List.of(new ItemRequestDtoOut(1L, "нужна штука, чтобы делать чисто",
                         LocalDateTime.of(2023, 1, 8, 12, 30, 54), List.of(item1)),
                 new ItemRequestDtoOut(2L, "нужна штука, чтобы сверлить",
                         LocalDateTime.of(2023, 1, 12, 12, 30, 54), List.of(item2)));
@@ -78,7 +78,7 @@ public class ItemRequestControllerTest {
     void getAllItemRequestByRequesterId() throws Exception {
         long requesterId = 1;
         when(itemRequestService.getAllItemRequestByRequesterId(anyLong()))
-                .thenReturn(ItemRequestDtoOuts);
+                .thenReturn(itemRequestDtoOuts);
         mvc.perform(get("/requests")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,21 +88,21 @@ public class ItemRequestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.is(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description",
-                        Matchers.is(ItemRequestDtoOuts.get(0).getDescription())))
+                        Matchers.is(itemRequestDtoOuts.get(0).getDescription())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].created",
-                        Matchers.is(ItemRequestDtoOuts.get(0).getCreated().toString())))
+                        Matchers.is(itemRequestDtoOuts.get(0).getCreated().toString())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.is(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description",
-                        Matchers.is(ItemRequestDtoOuts.get(1).getDescription())))
+                        Matchers.is(itemRequestDtoOuts.get(1).getDescription())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].created",
-                        Matchers.is(ItemRequestDtoOuts.get(1).getCreated().toString())));
+                        Matchers.is(itemRequestDtoOuts.get(1).getCreated().toString())));
     }
 
     @Test
     void getAllItemRequest() throws Exception {
         long userId = 1;
         when(itemRequestService.getAllItemRequest(anyLong(), anyLong(), anyLong()))
-                .thenReturn(ItemRequestDtoOuts);
+                .thenReturn(itemRequestDtoOuts);
         mvc.perform(get("/requests/all")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,21 +112,21 @@ public class ItemRequestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.is(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description",
-                        Matchers.is(ItemRequestDtoOuts.get(0).getDescription())))
+                        Matchers.is(itemRequestDtoOuts.get(0).getDescription())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].created",
-                        Matchers.is(ItemRequestDtoOuts.get(0).getCreated().toString())))
+                        Matchers.is(itemRequestDtoOuts.get(0).getCreated().toString())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.is(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description",
-                        Matchers.is(ItemRequestDtoOuts.get(1).getDescription())))
+                        Matchers.is(itemRequestDtoOuts.get(1).getDescription())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].created",
-                        Matchers.is(ItemRequestDtoOuts.get(1).getCreated().toString())));
+                        Matchers.is(itemRequestDtoOuts.get(1).getCreated().toString())));
     }
 
     @Test
     void getItemRequestById() throws Exception {
         long userId = 1;
         when(itemRequestService.getItemRequestById(anyLong(), anyLong()))
-                .thenReturn(ItemRequestDtoOuts.get(1));
+                .thenReturn(itemRequestDtoOuts.get(1));
         mvc.perform(get("/requests/2")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,9 +135,9 @@ public class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description",
-                        Matchers.is(ItemRequestDtoOuts.get(1).getDescription())))
+                        Matchers.is(itemRequestDtoOuts.get(1).getDescription())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.created",
-                        Matchers.is(ItemRequestDtoOuts.get(1).getCreated().toString())));
+                        Matchers.is(itemRequestDtoOuts.get(1).getCreated().toString())));
     }
 
     /*указано отрицательно число номера страницы*/

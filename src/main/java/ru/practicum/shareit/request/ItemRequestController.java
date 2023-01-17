@@ -3,9 +3,6 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.dto.BookingDtoIn;
-import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
@@ -51,7 +48,7 @@ public class ItemRequestController {
 
     @GetMapping("/{requestId}")
     public ItemRequestDtoOut getItemRequestById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                              @PathVariable("requestId") Long requestId) {
+                                                @PathVariable("requestId") Long requestId) {
         log.info("Получили запрос с id {}", requestId);
         return itemRequestService.getItemRequestById(userId, requestId);
     }
