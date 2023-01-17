@@ -1,37 +1,27 @@
 package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -40,10 +30,6 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
 @SpringBootTest
@@ -180,6 +166,7 @@ public class BookingServiceImplTest {
         List<BookingDtoOut> bookingDtoOuts = service.getAllBookingsByBookerId(bookerId, state, from, size);
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.bookerId= :bookerId", Booking.class);
         List<Booking> bookings = query.setParameter("bookerId", bookerId).getResultList();
+        assertEquals(bookingDtoOuts.size(), 5);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -200,6 +187,7 @@ public class BookingServiceImplTest {
                 "and b.start< :nowTime and  b.end> :nowTime ", Booking.class);
         List<Booking> bookings = query.setParameter("bookerId", bookerId).setParameter("nowTime",
                 nowTime).getResultList();
+        assertEquals(bookingDtoOuts.size(), 1);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -220,6 +208,7 @@ public class BookingServiceImplTest {
                 "and b.end< :nowTime ", Booking.class);
         List<Booking> bookings = query.setParameter("bookerId", bookerId).setParameter("nowTime",
                 nowTime).getResultList();
+        assertEquals(bookingDtoOuts.size(), 2);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -240,6 +229,7 @@ public class BookingServiceImplTest {
                 "and b.start> :nowTime ", Booking.class);
         List<Booking> bookings = query.setParameter("bookerId", bookerId).setParameter("nowTime",
                 nowTime).getResultList();
+        assertEquals(bookingDtoOuts.size(), 2);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -260,6 +250,7 @@ public class BookingServiceImplTest {
                 "and b.status= :bookingState ", Booking.class);
         List<Booking> bookings = query.setParameter("bookerId", bookerId).setParameter("bookingState",
                 bookingState).getResultList();
+        assertEquals(bookingDtoOuts.size(), 1);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -280,6 +271,7 @@ public class BookingServiceImplTest {
                 "and b.status= :bookingState ", Booking.class);
         List<Booking> bookings = query.setParameter("bookerId", bookerId).setParameter("bookingState",
                 bookingState).getResultList();
+        assertEquals(bookingDtoOuts.size(), 1);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -298,6 +290,7 @@ public class BookingServiceImplTest {
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b join Item i on b.itemId=i.id " +
                 "where i.userId= :ownerId order by b.end desc ", Booking.class);
         List<Booking> bookings = query.setParameter("ownerId", ownerId).getResultList();
+        assertEquals(bookingDtoOuts.size(), 6);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -318,6 +311,7 @@ public class BookingServiceImplTest {
                 "where i.userId= :ownerId and b.start< :nowTime and  b.end> :nowTime", Booking.class);
         List<Booking> bookings = query.setParameter("ownerId", ownerId).setParameter("nowTime",
                 nowTime).getResultList();
+        assertEquals(bookingDtoOuts.size(), 1);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -338,6 +332,7 @@ public class BookingServiceImplTest {
                 "where i.userId= :ownerId and b.end< :nowTime", Booking.class);
         List<Booking> bookings = query.setParameter("ownerId", ownerId).setParameter("nowTime",
                 nowTime).getResultList();
+        assertEquals(bookingDtoOuts.size(), 3);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -358,6 +353,7 @@ public class BookingServiceImplTest {
                 "where i.userId= :ownerId and b.start> :nowTime", Booking.class);
         List<Booking> bookings = query.setParameter("ownerId", ownerId).setParameter("nowTime",
                 nowTime).getResultList();
+        assertEquals(bookingDtoOuts.size(), 2);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -378,6 +374,7 @@ public class BookingServiceImplTest {
                 "where i.userId= :ownerId and b.status= :bookingState", Booking.class);
         List<Booking> bookings = query.setParameter("ownerId", ownerId).setParameter("bookingState",
                 bookingState).getResultList();
+        assertEquals(bookingDtoOuts.size(), 1);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -398,6 +395,7 @@ public class BookingServiceImplTest {
                 "where i.userId= :ownerId and b.status= :bookingState", Booking.class);
         List<Booking> bookings = query.setParameter("ownerId", ownerId).setParameter("bookingState",
                 bookingState).getResultList();
+        assertEquals(bookingDtoOuts.size(), 1);
         assertEquals(bookings.size(), bookingDtoOuts.size());
         for (Booking booking : bookings) {
             assertThat(bookingDtoOuts, hasItem(allOf(
@@ -413,7 +411,9 @@ public class BookingServiceImplTest {
         long ownerId = 1;
         String state = "KHGJKG";
         assertThrows(IncorrectParameterException.class,
-                () -> {service.getAllBookingsByOwnerId(ownerId, state, from, size);});
+                () -> {
+                    service.getAllBookingsByOwnerId(ownerId, state, from, size);
+                });
     }
 
     /*попытка забронировать вещь, которой нет в наличии*/
@@ -424,7 +424,9 @@ public class BookingServiceImplTest {
         LocalDateTime bookingStart = LocalDateTime.of(2023, 5, 8, 12, 30, 54);
         LocalDateTime bookingEnd = LocalDateTime.of(2023, 5, 10, 12, 30, 54);
         assertThrows(IncorrectParameterException.class,
-                () -> {service.saveBooking(bookerId, new BookingDtoIn(itemId, bookingStart, bookingEnd));});
+                () -> {
+                    service.saveBooking(bookerId, new BookingDtoIn(itemId, bookingStart, bookingEnd));
+                });
     }
 
     @Test
@@ -435,19 +437,25 @@ public class BookingServiceImplTest {
         LocalDateTime bookingStart1 = LocalDateTime.of(2023, 1, 8, 12, 30, 54);
         LocalDateTime bookingEnd1 = LocalDateTime.of(2023, 1, 10, 12, 30, 54);
         assertThrows(IncorrectParameterException.class,
-                () -> {service.saveBooking(bookerId1, new BookingDtoIn(itemId, bookingStart1, bookingEnd1));});
+                () -> {
+                    service.saveBooking(bookerId1, new BookingDtoIn(itemId, bookingStart1, bookingEnd1));
+                });
 
         /*Время окончания аренды раньше времени начала аренды*/
         LocalDateTime bookingStart2 = LocalDateTime.of(2025, 5, 20, 12, 30, 54);
         LocalDateTime bookingEnd2 = LocalDateTime.of(2025, 5, 18, 12, 30, 54);
         assertThrows(IncorrectParameterException.class,
-                () -> {service.saveBooking(bookerId1, new BookingDtoIn(itemId, bookingStart2, bookingEnd2));});
+                () -> {
+                    service.saveBooking(bookerId1, new BookingDtoIn(itemId, bookingStart2, bookingEnd2));
+                });
 
         /*время начала бронирования указано в прошлом*/
         LocalDateTime bookingStart3 = LocalDateTime.of(2023, 1, 1, 12, 30, 54);
         LocalDateTime bookingEnd3 = LocalDateTime.of(2025, 5, 18, 12, 30, 54);
         assertThrows(IncorrectParameterException.class,
-                () -> {service.saveBooking(bookerId1, new BookingDtoIn(itemId, bookingStart3, bookingEnd3));});
+                () -> {
+                    service.saveBooking(bookerId1, new BookingDtoIn(itemId, bookingStart3, bookingEnd3));
+                });
     }
 
     /*владелец вещи пытается забронировать свою вещь*/
@@ -458,7 +466,9 @@ public class BookingServiceImplTest {
         LocalDateTime bookingStart4 = LocalDateTime.of(2025, 1, 1, 12, 30, 54);
         LocalDateTime bookingEnd4 = LocalDateTime.of(2025, 5, 18, 12, 30, 54);
         assertThrows(NotFoundException.class,
-                () -> {service.saveBooking(bookerId2, new BookingDtoIn(itemId, bookingStart4, bookingEnd4));});
+                () -> {
+                    service.saveBooking(bookerId2, new BookingDtoIn(itemId, bookingStart4, bookingEnd4));
+                });
     }
 
     /*получение бронирование пользователем, у которого нет на это прав*/
@@ -467,7 +477,9 @@ public class BookingServiceImplTest {
         long userId = 2;
         long bookingId = 2;
         assertThrows(NotFoundException.class,
-                () -> {service.getBookingById(userId, bookingId);});
+                () -> {
+                    service.getBookingById(userId, bookingId);
+                });
     }
 
     /*изменение бронирование пользователем, который не является владельцем вещи*/
@@ -477,11 +489,15 @@ public class BookingServiceImplTest {
         long bookingId1 = 3;
         String approved1 = "true";
         assertThrows(NotFoundException.class,
-                () -> {service.updateBooking(userId1, approved1, bookingId1);});
+                () -> {
+                    service.updateBooking(userId1, approved1, bookingId1);
+                });
 
         long userId2 = 3;
         assertThrows(NotFoundException.class,
-                () -> {service.updateBooking(userId2, approved1, bookingId1);});
+                () -> {
+                    service.updateBooking(userId2, approved1, bookingId1);
+                });
     }
 
     /*изменение статуса бронирования владельцем вещи после того, как статус стал APPROVED*/
@@ -491,13 +507,17 @@ public class BookingServiceImplTest {
         long bookingId = 1;
         String approved = "false";
         assertThrows(IncorrectParameterException.class,
-                () -> {service.updateBooking(ownerId, approved, bookingId);});
+                () -> {
+                    service.updateBooking(ownerId, approved, bookingId);
+                });
     }
 
     /*получение несуществующего бронирования*/
     @Test
     void bookingValid() {
-        assertThrows(NotFoundException.class, () -> {service.getBookingById(1, 8);});
+        assertThrows(NotFoundException.class, () -> {
+            service.getBookingById(1, 8);
+        });
     }
 
     private User makeUser(String email, String name) {

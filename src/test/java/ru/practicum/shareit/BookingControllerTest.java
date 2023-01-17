@@ -16,8 +16,6 @@ import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
-import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 

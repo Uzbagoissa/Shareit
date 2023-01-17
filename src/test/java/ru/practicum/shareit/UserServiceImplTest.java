@@ -1,17 +1,12 @@
 package ru.practicum.shareit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.util.ReflectionTestUtils;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -74,6 +69,7 @@ public class UserServiceImplTest {
         TypedQuery<User> query = em.createQuery("Select u from User u", User.class);
         List<User> users = query.getResultList();
         List<UserDto> targetUsers = service.getAllUsers();
+        assertEquals(targetUsers.size(), 3);
         assertThat(targetUsers, hasSize(users.size()));
         for (User sourceUser : users) {
             assertThat(targetUsers, hasItem(allOf(
@@ -133,7 +129,9 @@ public class UserServiceImplTest {
     /*получение несуществующего пользователя*/
     @Test
     void userValid() {
-        assertThrows(NotFoundException.class, () -> {service.getUserById(8);});
+        assertThrows(NotFoundException.class, () -> {
+            service.getUserById(8);
+        });
     }
 
     private UserDto makeUserDto(String email, String name) {

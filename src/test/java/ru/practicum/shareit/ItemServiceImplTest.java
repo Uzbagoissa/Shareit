@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.ForbiddenException;
@@ -16,8 +15,6 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EntityManager;
@@ -68,8 +65,8 @@ public class ItemServiceImplTest {
         em.flush();
 
         List<Booking> sourceBookings = List.of(
-                makeBooking(LocalDateTime.of(2022,3,8,12,30,54),
-                        LocalDateTime.of(2022,3,9,12,30,54),
+                makeBooking(LocalDateTime.of(2022, 3, 8, 12, 30, 54),
+                        LocalDateTime.of(2022, 3, 9, 12, 30, 54),
                         2L, 3L, BookingStatus.APPROVED)
         );
         for (Booking booking : sourceBookings) {
@@ -106,15 +103,18 @@ public class ItemServiceImplTest {
     void saveItemWithoutAvailable() {
         long userId = 2;
         ItemDto itemDto = makeItemDto("камера", "делать видео", null, 2L);
-        assertThrows(IncorrectParameterException.class, () -> {service.saveItem(userId, itemDto);});
+        assertThrows(IncorrectParameterException.class, () -> {
+            service.saveItem(userId, itemDto);
+        });
     }
 
     @Test
     void getAllItems() {
         long userId = 1;
-        TypedQuery<Item> query= em.createQuery("Select i from Item i where i.userId = :userId", Item.class);
+        TypedQuery<Item> query = em.createQuery("Select i from Item i where i.userId = :userId", Item.class);
         List<Item> items = query.setParameter("userId", userId).getResultList();
         List<ItemDto> targetItems = service.getAllItems(userId, from, size);
+        assertEquals(targetItems.size(), 2);
         assertThat(targetItems, hasSize(items.size()));
         for (Item sourceItem : items) {
             assertThat(targetItems, hasItem(allOf(
@@ -168,12 +168,12 @@ public class ItemServiceImplTest {
         Item item = query1.getSingleResult();
         assertEquals(targetItems1.get(0).getId(), item.getId());
 
-        List<ItemDto>  targetItems2 = service.searchItems(text2, from, size);
-        TypedQuery<Item>  query2 = em.createQuery("Select i from Item i where i.id= 2", Item.class);
+        List<ItemDto> targetItems2 = service.searchItems(text2, from, size);
+        TypedQuery<Item> query2 = em.createQuery("Select i from Item i where i.id= 2", Item.class);
         item = query2.getSingleResult();
         assertEquals(targetItems2.get(0).getId(), item.getId());
 
-        List<ItemDto>  targetItems3 = service.searchItems(text3, from, size);
+        List<ItemDto> targetItems3 = service.searchItems(text3, from, size);
         TypedQuery<Item> query3 = em.createQuery("Select i from Item i where i.id= 3", Item.class);
         item = query3.getSingleResult();
         assertEquals(targetItems3.get(0).getId(), item.getId());
@@ -217,7 +217,9 @@ public class ItemServiceImplTest {
         long userId = 1;
         long itemId = 3;
         ItemDto itemDto = makeItemDto("веник", "штука для приборки", true, 1L);
-        assertThrows(ForbiddenException.class, () -> {service.updateItem(userId, itemDto, itemId);});
+        assertThrows(ForbiddenException.class, () -> {
+            service.updateItem(userId, itemDto, itemId);
+        });
     }
 
     @Test
@@ -243,12 +245,17 @@ public class ItemServiceImplTest {
         String text = "ниче такая штуковина, пойдет";
         CommentDto commentDto = new CommentDto();
         commentDto.setText(text);
-        assertThrows(IncorrectParameterException.class, () -> {service.saveComment(userId, commentDto, itemId);});
+        assertThrows(IncorrectParameterException.class, () -> {
+            service.saveComment(userId, commentDto, itemId);
+        });
     }
 
+    /*получение несуществующей вещи*/
     @Test
     void itemValid() {
-        assertThrows(NotFoundException.class, () -> {service.getItemById(1, 8);});
+        assertThrows(NotFoundException.class, () -> {
+            service.getItemById(1, 8);
+        });
     }
 
     private Item makeItemForDB(Long userId, String name, String description, Boolean available, Long requestId) {

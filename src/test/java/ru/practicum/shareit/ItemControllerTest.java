@@ -8,19 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
-import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.CommentDto;
 import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.ItemRepositoryImpl;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -31,7 +26,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ItemController.class)
@@ -49,8 +43,8 @@ public class ItemControllerTest {
     void addDate() {
         itemDtos = List.of(new ItemDto(1, "метла", "штука для приборки", true, null,
                         null, null, 1L),
-                new ItemDto(2, "дрель", "чтоб сверлить", true,null,
-                        null, null,  3L));
+                new ItemDto(2, "дрель", "чтоб сверлить", true, null,
+                        null, null, 3L));
     }
 
     @Test
@@ -166,11 +160,27 @@ public class ItemControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.requestId", Matchers.is(2)));
     }
 
+    /*попытка изменить пользователем чужую вещь*/
+    @Test
+    void updateItemWithIncorrectUser() throws Exception {
+        long userId = 2;
+        ItemDto itemDto = makeItemDto("камера", "снимать чет там", true, 2);
+        when(itemService.updateItem(anyLong(), any(ItemDto.class), anyLong()))
+                .thenThrow(new ForbiddenException("Пользователю запрещено изменять чужую вещь!"));
+        mvc.perform(patch("/items/1")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isForbidden());
+    }
+
     @Test
     void searchItems() throws Exception {
         long userId = 1;
         String text = "Аме";
-        List <ItemDto> itemDtosFound = new ArrayList<>();
+        List<ItemDto> itemDtosFound = new ArrayList<>();
         ItemDto itemDto = makeItemDto("камера", "снимать чет там", true, 2);
         itemDtosFound.add(itemDto);
         when(itemService.searchItems(anyString(), anyLong(), anyLong()))

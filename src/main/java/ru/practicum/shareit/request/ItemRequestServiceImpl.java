@@ -45,10 +45,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDtoOut> getAllItemRequestByOwnerId(long ownerId) {
-        userValid(ownerId);
+    public List<ItemRequestDtoOut> getAllItemRequestByRequesterId(long requesterId) {
+        userValid(requesterId);
         return addItemsToItemRequests().stream()
-                .filter(a -> a.getRequesterId().equals(ownerId))
+                .filter(a -> a.getRequesterId().equals(requesterId))
                 .sorted(Comparator.comparing(ItemRequest::getCreated))
                 .map(ItemRequestMapper::toItemRequestDtoOut)
                 .collect(Collectors.toList());
@@ -79,11 +79,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         for (ItemRequest itemRequest : repository.findAll()) {
             itemRequest.setItems(addItemToList(itemRequest.getId()));
             itemRequests.add(itemRequest);
-        }
-        for (ItemRequest itemRequest1 : repository.findAll()) {
-            if (!itemRequests.contains(itemRequest1)) {
-                itemRequests.add(itemRequest1);
-            }
         }
         return itemRequests;
     }

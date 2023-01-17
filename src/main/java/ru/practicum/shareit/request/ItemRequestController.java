@@ -28,9 +28,9 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestDtoOut> getAllItemRequestByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-        log.info("Получили все запросы пользователя с id {}", ownerId);
-        return itemRequestService.getAllItemRequestByOwnerId(ownerId);
+    public List<ItemRequestDtoOut> getAllItemRequestByRequesterId(@RequestHeader("X-Sharer-User-Id") long requesterId) {
+        log.info("Получили все запросы пользователя с id {}", requesterId);
+        return itemRequestService.getAllItemRequestByRequesterId(requesterId);
     }
 
     @GetMapping("/all")

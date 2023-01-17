@@ -33,3 +33,10 @@
 3. item_id - FOREIGN KEY (ITEMS)
 4. author_id
 5. created
+
+## Таблица REQUESTS:
+
+1. id - PRIMARY KEY AUTO INCREMENT
+2. description
+3. requester_id - FOREIGN KEY (USERS)
+4. created
