@@ -8,7 +8,7 @@ import ru.practicum.shareit.booking.model.Booking;
 
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BookingMapper {
+public final class BookingMapper {
 
     public static BookingDtoOut toBookingDtoOut(Booking booking) {
         BookingDtoOut bookingDtoOut = new BookingDtoOut();

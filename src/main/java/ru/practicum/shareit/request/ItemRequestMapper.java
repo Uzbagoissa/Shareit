@@ -9,7 +9,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)//
 @Service
-public class ItemRequestMapper {
+public final class ItemRequestMapper {
 
     public static ItemRequestDtoOut toItemRequestDtoOut(ItemRequest itemRequest) {
         ItemRequestDtoOut itemRequestDtoOut = new ItemRequestDtoOut();

@@ -169,7 +169,7 @@ public class BookingControllerTest {
         long userId = 1;
         long from = -1;
         when(bookingService.getAllBookingsByBookerId(anyLong(), anyString(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("from"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from));
         mvc.perform(get("/bookings")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -185,7 +185,7 @@ public class BookingControllerTest {
         long userId = 1;
         long size = 0;
         when(bookingService.getAllBookingsByBookerId(anyLong(), anyString(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("from"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size));
         mvc.perform(get("/bookings")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -201,7 +201,7 @@ public class BookingControllerTest {
         long userId = 1;
         long from = -1;
         when(bookingService.getAllBookingsByOwnerId(anyLong(), anyString(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("from"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from));
         mvc.perform(get("/bookings/owner")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -217,7 +217,7 @@ public class BookingControllerTest {
         long userId = 1;
         long size = 0;
         when(bookingService.getAllBookingsByOwnerId(anyLong(), anyString(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("from"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size));
         mvc.perform(get("/bookings/owner")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

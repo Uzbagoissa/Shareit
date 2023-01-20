@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class ItemMapper {
+public final class ItemMapper {
 
     public static ItemDto toItemDto(Item item) {
         ItemDto itemDto = new ItemDto();

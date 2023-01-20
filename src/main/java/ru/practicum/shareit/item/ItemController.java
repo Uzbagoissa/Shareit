@@ -22,11 +22,11 @@ public class ItemController {
                                      @RequestParam(value = "size", defaultValue = "10") long size) {
         if (from < 0) {
             log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
-            throw new IncorrectParameterException("from");
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
         }
         if (size <= 0) {
             log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
-            throw new IncorrectParameterException("size");
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
         }
         log.info("Получили все вещи");
         return itemService.getAllItems(userId, from, size);
@@ -46,11 +46,11 @@ public class ItemController {
                                      @RequestParam(value = "size", defaultValue = "10") long size) {
         if (from < 0) {
             log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
-            throw new IncorrectParameterException("from");
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
         }
         if (size <= 0) {
             log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
-            throw new IncorrectParameterException("size");
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
         }
         log.info("Нашли указанные вещи");
         return itemService.searchItems(text, from, size);

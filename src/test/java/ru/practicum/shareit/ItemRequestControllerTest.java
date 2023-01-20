@@ -146,7 +146,7 @@ public class ItemRequestControllerTest {
         long userId = 1;
         long from = -1;
         when(itemRequestService.getAllItemRequest(anyLong(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("from"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from));
         mvc.perform(get("/requests/all")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -162,7 +162,7 @@ public class ItemRequestControllerTest {
         long userId = 1;
         long size = 0;
         when(itemRequestService.getAllItemRequest(anyLong(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("size"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size));
         mvc.perform(get("/requests/all")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

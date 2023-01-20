@@ -31,11 +31,11 @@ public class BookingController {
                                                         @RequestParam(value = "size", defaultValue = "10") long size) {
         if (from < 0) {
             log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
-            throw new IncorrectParameterException("from");
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
         }
         if (size <= 0) {
             log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
-            throw new IncorrectParameterException("size");
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
         }
         log.info("Получили все бронирования пользователя с id {}", bookerId);
         return bookingService.getAllBookingsByBookerId(bookerId, state, from, size);
@@ -48,11 +48,11 @@ public class BookingController {
                                                        @RequestParam(value = "size", defaultValue = "10") long size) {
         if (from < 0) {
             log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
-            throw new IncorrectParameterException("from");
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
         }
         if (size <= 0) {
             log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
-            throw new IncorrectParameterException("size");
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
         }
         log.info("Получили все забронированные вещи пользователя с id {}", ownerId);
         return bookingService.getAllBookingsByOwnerId(ownerId, state, from, size);

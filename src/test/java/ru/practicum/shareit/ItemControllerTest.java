@@ -205,7 +205,7 @@ public class ItemControllerTest {
         long from = -1;
         String text = "Аме";
         when(itemService.searchItems(anyString(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("from"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from));
         mvc.perform(get("/items/search")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -223,7 +223,7 @@ public class ItemControllerTest {
         long size = 0;
         String text = "Аме";
         when(itemService.searchItems(anyString(), anyLong(), anyLong()))
-                .thenThrow(new IncorrectParameterException("size"));
+                .thenThrow(new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size));
         mvc.perform(get("/items/search")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
