@@ -34,15 +34,18 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemDto> getAllItems(long userId) {
+    public List<ItemDto> getAllItems(long userId, long from, long size) {
         userValid(userId);
         List<ItemDto> itemDtos = ItemMapper.toListItemDto(repository.findByUserId(userId));
         for (ItemDto itemDto : itemDtos) {
             itemOwnerValid(itemDto, userId, itemDto.getId());
             itemDto.setComments(addComments(itemDto.getId()));
         }
-        itemDtos.sort(Comparator.comparing(ItemDto::getId));
-        return itemDtos;
+        return itemDtos.stream()
+                .skip(from)
+                .limit(size)
+                .sorted(Comparator.comparing(ItemDto::getId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -55,8 +58,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItems(String text) {
-        return ItemMapper.toListItemDto(repository.searchItems(text));
+    public List<ItemDto> searchItems(String text, long from, long size) {
+        return ItemMapper.toListItemDto(repository.searchItems(text)).stream()
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -138,7 +144,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList())
                 .contains(userId)) {
             log.error("Пользователя с id не существует! {}", userId);
-            throw new NotFoundException("Пользователя с id не существует!");
+            throw new NotFoundException("Пользователя с таким id не существует!");
         }
     }
 
@@ -148,7 +154,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList())
                 .contains(id)) {
             log.error("Вещи с id не существует! {}", id);
-            throw new NotFoundException("Вещи с id не существует!");
+            throw new NotFoundException("Вещи с таким id не существует!");
         }
     }
 

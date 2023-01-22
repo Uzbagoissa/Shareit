@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.Valid;
@@ -16,9 +17,19 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                     @RequestParam(value = "from", defaultValue = "0") long from,
+                                     @RequestParam(value = "size", defaultValue = "10") long size) {
+        if (from < 0) {
+            log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
+        }
+        if (size <= 0) {
+            log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
+        }
         log.info("Получили все вещи");
-        return itemService.getAllItems(userId);
+        return itemService.getAllItems(userId, from, size);
     }
 
     @GetMapping("/{id}")
@@ -30,9 +41,19 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestHeader("X-Sharer-User-Id") long userId,
-                                     @RequestParam(value = "text") String text) {
+                                     @RequestParam(value = "text") String text,
+                                     @RequestParam(value = "from", defaultValue = "0") long from,
+                                     @RequestParam(value = "size", defaultValue = "10") long size) {
+        if (from < 0) {
+            log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
+        }
+        if (size <= 0) {
+            log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
+        }
         log.info("Нашли указанные вещи");
-        return itemService.searchItems(text);
+        return itemService.searchItems(text, from, size);
     }
 
     @PostMapping

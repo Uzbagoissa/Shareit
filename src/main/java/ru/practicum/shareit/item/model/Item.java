@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "items", schema = "public")
@@ -29,18 +30,19 @@ public class Item {
     @Column(name = "available", nullable = false)
     Boolean available;
 
-    @Column(name = "request", nullable = false)
-    String request;
+    @Column(name = "request_id", nullable = false)
+    Long requestId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Item)) return false;
-        return id != null && id.equals(((Item) o).getId());
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return Objects.equals(id, item.id) && Objects.equals(userId, item.userId) && Objects.equals(name, item.name) && Objects.equals(description, item.description) && Objects.equals(available, item.available) && Objects.equals(requestId, item.requestId);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(id, userId, name, description, available, requestId);
     }
 }
