@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.booking.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,9 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentDto {
-    Long id;
-    String text;
-    String authorName;
-    LocalDateTime created;
+public class BookingDtoIn {
+    Long itemId;
+    LocalDateTime start;
+    LocalDateTime end;
 }

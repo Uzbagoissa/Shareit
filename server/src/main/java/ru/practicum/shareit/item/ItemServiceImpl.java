@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-/*import ru.practicum.shareit.booking.BookingRepository;*/
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ItemServiceImpl implements ItemService {
     UserService userService;
-    /*BookingRepository bookingRepository;*/
+    BookingRepository bookingRepository;
     ItemRepository repository;
     CommentRepository commentRepository;
 
@@ -39,8 +39,8 @@ public class ItemServiceImpl implements ItemService {
         userValid(userId);
         List<ItemDto> itemDtos = ItemMapper.toListItemDto(repository.findByUserId(userId));
         for (ItemDto itemDto : itemDtos) {
-            /*itemOwnerValid(itemDto, userId, itemDto.getId());*/
-            /*itemDto.setComments(addComments(itemDto.getId()));*/
+            itemOwnerValid(itemDto, userId, itemDto.getId());
+            itemDto.setComments(addComments(itemDto.getId()));
         }
         return itemDtos.stream()
                 .skip(from)
@@ -53,8 +53,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItemById(long userId, long id) {
         itemValid(id);
         ItemDto itemDto = ItemMapper.toItemDto(repository.getById(id));
-        /*itemOwnerValid(itemDto, userId, id);*/
-        /*itemDto.setComments(addComments(id));*/
+        itemOwnerValid(itemDto, userId, id);
+        itemDto.setComments(addComments(id));
         return itemDto;
     }
 
@@ -70,10 +70,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto saveItem(long userId, ItemDto itemDto) {
         userValid(userId);
-        if (itemDto.getAvailable() == null) {
-            log.error("Нужно указать наличие вещи!");
-            throw new IncorrectParameterException("Нужно указать наличие вещи!");
-        }
+
         return ItemMapper.toItemDto(repository.save(ItemMapper.toItem(userId, itemDto)));
     }
 
@@ -103,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(repository.save(item));
     }
 
-    /*@Transactional
+    @Transactional
     @Override
     public CommentDto saveComment(long userId, CommentDto commentDto, long itemId) {
         if (bookingRepository.findBookingByUserIdAndItemId(userId, itemId, LocalDateTime.now()).isEmpty()) {
@@ -118,9 +115,9 @@ public class ItemServiceImpl implements ItemService {
         commentDto = CommentMapper.toCommentDto(commentRepository.save(comment));
         commentDto.setAuthorName(userService.getUserById(userId).getName());
         return commentDto;
-    }*/
+    }
 
-    /*private List<CommentDto> addComments(long itemId) {
+    private List<CommentDto> addComments(long itemId) {
         List<CommentDto> comments = new ArrayList<>();
         for (Comment comment : commentRepository.findAll()) {
             if (comment.getItem().equals(itemId)) {
@@ -130,14 +127,14 @@ public class ItemServiceImpl implements ItemService {
             }
         }
         return comments;
-    }*/
+    }
 
-    /*private void itemOwnerValid(ItemDto itemDto, long userId, long id) {
+    private void itemOwnerValid(ItemDto itemDto, long userId, long id) {
         if (repository.getById(id).getUserId().equals(userId)) {
             itemDto.setLastBooking(bookingRepository.findLastBookingByItemId(id, LocalDateTime.now()));
             itemDto.setNextBooking(bookingRepository.findNextBookingByItemId(id, LocalDateTime.now()));
         }
-    }*/
+    }
 
     private void userValid(long userId) {
         if (!userService.getAllUsers().stream()

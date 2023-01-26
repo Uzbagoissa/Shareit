@@ -7,12 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.BookingDtoIn;
+import ru.practicum.shareit.booking.dto.BookingDtoOut;
+import ru.practicum.shareit.exceptions.IncorrectParameterException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping(path = "/bookings")
@@ -22,27 +25,71 @@ import javax.validation.constraints.PositiveOrZero;
 public class BookingController {
 	private final BookingClient bookingClient;
 
+	@GetMapping("/{id}")
+	public ResponseEntity<Object> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
+										@PathVariable("id") long id) {
+		log.info("Получили бронирование с id {}", id);
+		return bookingClient.getBookingById(userId, id);
+	}
+
 	@GetMapping
-	public ResponseEntity<Object> getBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-			@RequestParam(name = "state", defaultValue = "all") String stateParam,
-			@PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-			@Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-		BookingState state = BookingState.from(stateParam)
-				.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
-		log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
-		return bookingClient.getBookings(userId, state, from, size);
+	public ResponseEntity<Object> getAllBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") long bookerId,
+														@RequestParam(value = "state", defaultValue = "ALL") String state,
+														@RequestParam(value = "from", defaultValue = "0") long from,
+														@RequestParam(value = "size", defaultValue = "10") long size) {
+		if (from < 0) {
+			log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+			throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
+		}
+		if (size <= 0) {
+			log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+			throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
+		}
+		log.info("Получили все бронирования пользователя с id {}", bookerId);
+		return bookingClient.getAllBookingsByBookerId(bookerId, state, from, size);
+	}
+
+	@GetMapping("/owner")
+	public ResponseEntity<Object> getAllBookingsByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId,
+													   @RequestParam(value = "state", defaultValue = "ALL") String state,
+													   @RequestParam(value = "from", defaultValue = "0") long from,
+													   @RequestParam(value = "size", defaultValue = "10") long size) {
+		if (from < 0) {
+			log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+			throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
+		}
+		if (size <= 0) {
+			log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+			throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
+		}
+		log.info("Получили все забронированные вещи пользователя с id {}", ownerId);
+		return bookingClient.getAllBookingsByOwnerId(ownerId, state, from, size);
 	}
 
 	@PostMapping
-	public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
-			@RequestBody @Valid BookItemRequestDto requestDto) {
-		log.info("Creating booking {}, userId={}", requestDto, userId);
-		return bookingClient.bookItem(userId, requestDto);
+	public ResponseEntity<Object> saveBooking(@RequestHeader("X-Sharer-User-Id") long bookerId,
+									 @Valid @RequestBody BookingDtoIn bookingDtoIn) {
+		if (bookingDtoIn.getEnd().isBefore(LocalDateTime.now())) {
+			log.error("Некорректное время окончания аренды!");
+			throw new IncorrectParameterException("Некорректное время окончания аренды!");
+		}
+		if (bookingDtoIn.getEnd().isBefore(bookingDtoIn.getStart())) {
+			log.error("Время окончания аренды раньше времени начала аренды!");
+			throw new IncorrectParameterException("Время окончания аренды раньше времени начала аренды!");
+		}
+		if (bookingDtoIn.getStart().isBefore(LocalDateTime.now())) {
+			log.error("Некорректное время начала аренды!");
+			throw new IncorrectParameterException("Некорректное время начала аренды!");
+		}
+		log.info("Добавили новый запрос на бронирование");
+		return bookingClient.saveBooking(bookerId, bookingDtoIn);
 	}
 
-	@GetMapping("/{bookingId}")
-	public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-			@PathVariable Long bookingId) {
-		log.info("Get booking {}, userId={}", bookingId, userId);
-		return bookingClient.getBooking(userId, bookingId);
-	}}
+	@PatchMapping("/{id}")
+	public ResponseEntity<Object> updateBooking(@RequestHeader("X-Sharer-User-Id") long ownerId,
+									   @RequestParam(value = "approved") String approved,
+									   @PathVariable("id") long id) {
+		log.info("Обновили статус запроса c id: {}", id);
+		return bookingClient.updateBooking(ownerId, approved, id);
+	}
+}

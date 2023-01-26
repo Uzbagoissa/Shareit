@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/items")
+@Validated
 public class ItemController {
     private final ItemClient itemClient;
 
@@ -61,6 +63,10 @@ public class ItemController {
     @PostMapping
     public ResponseEntity<Object> saveItem(@RequestHeader("X-Sharer-User-Id") long userId,
                             @Valid @RequestBody ItemDto itemDto) {
+        if (itemDto.getAvailable() == null) {
+            log.error("Нужно указать наличие вещи!");
+            throw new IncorrectParameterException("Нужно указать наличие вещи!");
+        }
         log.info("Добавили новую вещь");
         return itemClient.saveItem(userId, itemDto);
     }

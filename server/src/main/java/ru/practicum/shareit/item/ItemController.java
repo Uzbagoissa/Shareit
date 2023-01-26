@@ -20,6 +20,14 @@ public class ItemController {
     public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId,
                                      @RequestParam(value = "from", defaultValue = "0") long from,
                                      @RequestParam(value = "size", defaultValue = "10") long size) {
+        if (from < 0) {
+            log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
+        }
+        if (size <= 0) {
+            log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
+        }
         log.info("Получили все вещи");
         return itemService.getAllItems(userId, from, size);
     }
@@ -36,6 +44,14 @@ public class ItemController {
                                      @RequestParam(value = "text") String text,
                                      @RequestParam(value = "from", defaultValue = "0") long from,
                                      @RequestParam(value = "size", defaultValue = "10") long size) {
+        if (from < 0) {
+            log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
+            throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
+        }
+        if (size <= 0) {
+            log.info("Неверный параметр size: {}, size должен быть больше 0 ", size);
+            throw new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size);
+        }
         log.info("Нашли указанные вещи");
         return itemService.searchItems(userId, text, from, size);
     }
@@ -47,13 +63,13 @@ public class ItemController {
         return itemService.saveItem(userId, itemDto);
     }
 
-    /*@PostMapping("/{itemId}/comment")
+    @PostMapping("/{itemId}/comment")
     public CommentDto saveComment(@RequestHeader("X-Sharer-User-Id") long userId,
                                   @RequestBody CommentDto commentDto,
                                   @PathVariable("itemId") long itemId) {
         log.info("Добавили новый комментарий");
         return itemService.saveComment(userId, commentDto, itemId);
-    }*/
+    }
 
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
