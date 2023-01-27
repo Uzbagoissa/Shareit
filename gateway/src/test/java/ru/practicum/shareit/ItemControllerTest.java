@@ -1,28 +1,19 @@
 package ru.practicum.shareit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.item.ItemClient;
 import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -109,7 +100,7 @@ public class ItemControllerTest {
         long userId = 1;
         long size = 0;
         String text = "Аме";
-        when(itemClient.searchItems(anyLong(),anyString(), anyLong(), anyLong()))
+        when(itemClient.searchItems(anyLong(), anyString(), anyLong(), anyLong()))
                 .thenThrow(new IncorrectParameterException("Неверный параметр size: {}, size должен быть больше 0 " + size));
         mvc.perform(get("/items/search")
                         .characterEncoding(StandardCharsets.UTF_8)

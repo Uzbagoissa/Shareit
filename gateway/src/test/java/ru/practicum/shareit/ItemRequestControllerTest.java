@@ -1,32 +1,21 @@
 package ru.practicum.shareit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.ItemRequestClient;
 import ru.practicum.shareit.request.ItemRequestController;
-import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
-import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ItemRequestController.class)

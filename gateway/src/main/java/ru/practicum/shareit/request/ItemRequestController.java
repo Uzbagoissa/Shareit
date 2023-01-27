@@ -7,10 +7,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
-import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -35,8 +33,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAllItemRequest(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                     @RequestParam(value = "from", defaultValue = "0") long from,
-                                                     @RequestParam(value = "size", defaultValue = "1") long size) {
+                                                    @RequestParam(value = "from", defaultValue = "0") long from,
+                                                    @RequestParam(value = "size", defaultValue = "1") long size) {
         if (from < 0) {
             log.info("Неверный параметр from: {}, from должен быть больше 0 ", from);
             throw new IncorrectParameterException("Неверный параметр from: {}, from должен быть больше 0 " + from);
@@ -51,7 +49,7 @@ public class ItemRequestController {
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getItemRequestById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                @PathVariable("requestId") Long requestId) {
+                                                     @PathVariable("requestId") Long requestId) {
         log.info("Получили запрос с id {}", requestId);
         return itemRequestClient.getItemRequestById(userId, requestId);
     }

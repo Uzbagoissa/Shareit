@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -44,7 +43,7 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> updateUser(@RequestBody UserDto userDto,
-                              @PathVariable("id") long id) {
+                                             @PathVariable("id") long id) {
         log.info("Обновили пользователя c id: {}", id);
         return userClient.updateUser(userDto, id);
     }

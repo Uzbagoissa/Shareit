@@ -1,30 +1,18 @@
 package ru.practicum.shareit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import ru.practicum.shareit.exceptions.IncorrectParameterException;
-import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserClient;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
