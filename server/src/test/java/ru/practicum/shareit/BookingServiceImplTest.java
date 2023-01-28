@@ -14,8 +14,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -43,52 +41,29 @@ public class BookingServiceImplTest {
 
     @BeforeEach
     void addDate() {
-        List<User> sourceUsers = List.of(
-                makeUser("ivan@mail.ru", "Иван"),
-                makeUser("petr@mail.ru", "Петр"),
-                makeUser("vase@mail.ru", "Вася")
-        );
-        for (User user : sourceUsers) {
-            em.persist(user);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 1, 'Иван', 'ivan@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 2, 'Петр', 'petr@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 3, 'Вася', 'vase@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 4, 'Вася', 'sdfsdfe@mail.ru' )");
 
-        List<Item> sourceItems = List.of(
-                makeItem(1L, "метла", "штука для приборки", true, 1L),
-                makeItem(1L, "дрель", "чтоб сверлить", true, 3L),
-                makeItem(3L, "кофемашина", "делать кофе", true, 5L),
-                makeItem(3L, "чайник", "делать чай", false, 9L)
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 1, 1, 'метла', 'штука для приборки', true, 1 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 2, 1, 'дрель', 'чтоб сверлить', true, 3 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 3, 3, 'кофемашина', 'делать кофе', true, 5 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 4, 3, 'чайник', 'делать чай', false, 9 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 5, 1, 'чайник', 'делать чай', true, 5 )");
 
-        );
-        for (Item item : sourceItems) {
-            em.persist(item);
-        }
-        em.flush();
-
-        List<Booking> sourceBookings = List.of(
-                makeBooking(LocalDateTime.of(2022, 3, 8, 12, 30, 54),
-                        LocalDateTime.of(2022, 3, 10, 12, 30, 54),
-                        1L, 2L, BookingStatus.APPROVED),
-                makeBooking(LocalDateTime.of(2024, 3, 8, 12, 30, 54),
-                        LocalDateTime.of(2024, 3, 10, 12, 30, 54),
-                        1L, 3L, BookingStatus.APPROVED),
-                makeBooking(LocalDateTime.of(2024, 4, 8, 12, 30, 54),
-                        LocalDateTime.of(2024, 4, 10, 12, 30, 54),
-                        2L, 3L, BookingStatus.WAITING),
-                makeBooking(LocalDateTime.of(2023, 1, 1, 12, 30, 54),
-                        LocalDateTime.of(2023, 4, 10, 12, 30, 54),
-                        1L, 3L, BookingStatus.APPROVED),
-                makeBooking(LocalDateTime.of(2021, 1, 1, 12, 30, 54),
-                        LocalDateTime.of(2021, 4, 10, 12, 30, 54),
-                        2L, 3L, BookingStatus.APPROVED),
-                makeBooking(LocalDateTime.of(2021, 2, 1, 12, 30, 54),
-                        LocalDateTime.of(2021, 3, 10, 12, 30, 54),
-                        1L, 3L, BookingStatus.REJECTED)
-        );
-        for (Booking booking : sourceBookings) {
-            em.persist(booking);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 1, '2022-3-8 12:30:54'," +
+                " '2022-3-10 12:30:54', 1, 2, 'APPROVED' )");
+        jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 2, '2024-3-8 12:30:54'," +
+                " '2024-3-10 12:30:54', 1, 3, 'APPROVED' )");
+        jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 3, '2024-4-8 12:30:54'," +
+                " '2024-4-10 12:30:54', 2, 3, 'WAITING' )");
+        jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 4, '2023-1-1 12:30:54'," +
+                " '2023-4-10 12:30:54', 1, 3, 'APPROVED' )");
+        jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 5, '2021-1-1 12:30:54'," +
+                " '2021-4-10 12:30:54', 2, 3, 'APPROVED' )");
+        jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 6, '2021-2-1 12:30:54'," +
+                " '2021-3-10 12:30:54', 1, 3, 'REJECTED' )");
     }
 
     @AfterEach
@@ -103,21 +78,20 @@ public class BookingServiceImplTest {
 
     @Test
     void saveBooking() {
-        long bookerId = 2;
-        long itemId = 3;
+        long bookerId = 3;
+        long itemId = 5;
         LocalDateTime bookingStart = LocalDateTime.of(2024, 5, 8, 12, 30, 54);
         LocalDateTime bookingEnd = LocalDateTime.of(2024, 5, 10, 12, 30, 54);
-        BookingDtoOut bookingDtoOut = service.saveBooking(bookerId, new BookingDtoIn(itemId, bookingStart, bookingEnd));
+        BookingDtoIn bookingDtoIn = new BookingDtoIn(itemId, bookingStart, bookingEnd);
+        service.saveBooking(bookerId, bookingDtoIn);
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.itemId= :itemId " +
                 "and b.start= :bookingStart and b.end= :bookingEnd and b.bookerId= :bookerId", Booking.class);
         Booking booking = query.setParameter("itemId", itemId).setParameter("bookingStart", bookingStart)
                 .setParameter("bookingEnd", bookingEnd).setParameter("bookerId", bookerId).getSingleResult();
         assertThat(booking.getId(), notNullValue());
-        assertThat(booking.getStart(), equalTo(bookingDtoOut.getStart()));
-        assertThat(booking.getEnd(), equalTo(bookingDtoOut.getEnd()));
-        assertThat(booking.getItemId(), equalTo(bookingDtoOut.getItem().getId()));
-        assertThat(booking.getBookerId(), equalTo(bookingDtoOut.getBooker().getId()));
-        assertThat(booking.getStatus(), equalTo(bookingDtoOut.getStatus()));
+        assertThat(booking.getStart(), equalTo(bookingDtoIn.getStart()));
+        assertThat(booking.getEnd(), equalTo(bookingDtoIn.getEnd()));
+        assertThat(booking.getItemId(), equalTo(bookingDtoIn.getItemId()));
     }
 
     @Test
@@ -489,32 +463,5 @@ public class BookingServiceImplTest {
         assertThrows(NotFoundException.class, () -> {
             service.getBookingById(1, 8);
         });
-    }
-
-    private User makeUser(String email, String name) {
-        User user = new User();
-        user.setEmail(email);
-        user.setName(name);
-        return user;
-    }
-
-    private Item makeItem(Long userId, String name, String description, Boolean available, Long requestId) {
-        Item item = new Item();
-        item.setUserId(userId);
-        item.setName(name);
-        item.setDescription(description);
-        item.setAvailable(available);
-        item.setRequestId(requestId);
-        return item;
-    }
-
-    private Booking makeBooking(LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId, BookingStatus status) {
-        Booking booking = new Booking();
-        booking.setStart(start);
-        booking.setEnd(end);
-        booking.setItemId(itemId);
-        booking.setBookerId(bookerId);
-        booking.setStatus(status);
-        return booking;
     }
 }

@@ -35,16 +35,9 @@ public class UserServiceImplTest {
 
     @BeforeEach
     void addDate() {
-        List<UserDto> sourceUsers = List.of(
-                makeUserDto("ivan@mail.ru", "Иван"),
-                makeUserDto("petr@mail.ru", "Петр"),
-                makeUserDto("vase@mail.ru", "Вася")
-        );
-        for (UserDto userDto : sourceUsers) {
-            User entity = toUser(userDto);
-            em.persist(entity);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 1, 'Иван', 'ivan@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 2, 'Петр', 'petr@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 3, 'Вася', 'vase@mail.ru' )");
     }
 
     @AfterEach
@@ -139,13 +132,6 @@ public class UserServiceImplTest {
         userDto.setEmail(email);
         userDto.setName(name);
         return userDto;
-    }
-
-    private User toUser(UserDto userDto) {
-        User user = new User();
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        return user;
     }
 
     private UserDto toUserDto(User user) {

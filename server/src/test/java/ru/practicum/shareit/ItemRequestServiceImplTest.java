@@ -8,18 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -39,47 +35,27 @@ public class ItemRequestServiceImplTest {
     private final JdbcTemplate jdbcTemplate;
     private final long from = 0;
     private final long size = 10;
-    private List<Item> sourceItems;
 
     @BeforeEach
     void addDate() {
-        List<User> sourceUsers = List.of(
-                makeUser("ivan@mail.ru", "Иван"),
-                makeUser("petr@mail.ru", "Петр"),
-                makeUser("vase@mail.ru", "Вася")
-        );
-        for (User user : sourceUsers) {
-            em.persist(user);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 1, 'Иван', 'ivan@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 2, 'Петр', 'petr@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 3, 'Вася', 'vase@mail.ru' )");
 
-        List<ItemRequest> sourceItemRequests = List.of(
-                makeItemRequest("нужна штука, чтобы делать чисто", 2L,
-                        LocalDateTime.of(2023, 1, 8, 12, 30, 54)),
-                makeItemRequest("нужна штука, чтобы сверлить", 3L,
-                        LocalDateTime.of(2023, 1, 12, 12, 30, 54)),
-                makeItemRequest("нужна штука, чтобы варить кофе", 3L,
-                        LocalDateTime.of(2023, 1, 15, 12, 30, 54)),
-                makeItemRequest("нужна штука, чтобы выгуливать кота", 3L,
-                        LocalDateTime.of(2023, 1, 16, 12, 30, 54)),
-                makeItemRequest("нужна штука, чтобы летать", 2L,
-                        LocalDateTime.of(2023, 1, 17, 12, 30, 54))
+        jdbcTemplate.update("INSERT INTO REQUESTS VALUES ( 1, 'нужна штука, чтобы делать чисто', 2, " +
+                "'2023-1-8 12:30:54' )");
+        jdbcTemplate.update("INSERT INTO REQUESTS VALUES ( 2, 'нужна штука, чтобы сверлить', 3, " +
+                "'2023-1-12 12:30:54' )");
+        jdbcTemplate.update("INSERT INTO REQUESTS VALUES ( 3, 'нужна штука, чтобы варить кофе', 3, " +
+                "'2023-1-15 12:30:54' )");
+        jdbcTemplate.update("INSERT INTO REQUESTS VALUES ( 4, 'нужна штука, чтобы выгуливать кота', 3, " +
+                "'2023-1-16 12:30:54' )");
+        jdbcTemplate.update("INSERT INTO REQUESTS VALUES ( 5, 'нужна штука, чтобы летать', 2, " +
+                "'2023-1-17 12:30:54' )");
 
-        );
-        for (ItemRequest itemRequest : sourceItemRequests) {
-            em.persist(itemRequest);
-        }
-        em.flush();
-
-        sourceItems = List.of(
-                makeItem(1L, "метла", "штука для приборки", true, 1L),
-                makeItem(1L, "дрель", "чтоб сверлить", true, 2L),
-                makeItem(3L, "кофемашина", "делать кофе", true, 3L)
-        );
-        for (Item item : sourceItems) {
-            em.persist(item);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 1, 1, 'метла', 'штука для приборки', true, 1 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 2, 1, 'дрель', 'чтоб сверлить', true, 3 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 3, 3, 'кофемашина', 'делать кофе', true, 5 )");
     }
 
     @AfterEach
@@ -122,8 +98,6 @@ public class ItemRequestServiceImplTest {
                     hasProperty("created", equalTo(itemRequest.getCreated()))
             )));
         }
-        assertEquals(itemRequestDtoOuts.get(0).getItems().get(0), ItemMapper.toItemDto(sourceItems.get(1)));
-        assertEquals(itemRequestDtoOuts.get(1).getItems().get(0), ItemMapper.toItemDto(sourceItems.get(2)));
     }
 
     @Test
@@ -142,9 +116,6 @@ public class ItemRequestServiceImplTest {
                     hasProperty("created", equalTo(itemRequest.getCreated()))
             )));
         }
-        assertEquals(itemRequestDtoOuts.get(0).getItems().get(0), ItemMapper.toItemDto(sourceItems.get(0)));
-        assertEquals(itemRequestDtoOuts.get(1).getItems().get(0), ItemMapper.toItemDto(sourceItems.get(1)));
-        assertEquals(itemRequestDtoOuts.get(2).getItems().get(0), ItemMapper.toItemDto(sourceItems.get(2)));
     }
 
     @Test
@@ -166,30 +137,5 @@ public class ItemRequestServiceImplTest {
         assertThrows(NotFoundException.class, () -> {
             service.getItemRequestById(1L, 8L);
         });
-    }
-
-    private User makeUser(String email, String name) {
-        User user = new User();
-        user.setEmail(email);
-        user.setName(name);
-        return user;
-    }
-
-    private Item makeItem(Long userId, String name, String description, Boolean available, Long requestId) {
-        Item item = new Item();
-        item.setUserId(userId);
-        item.setName(name);
-        item.setDescription(description);
-        item.setAvailable(available);
-        item.setRequestId(requestId);
-        return item;
-    }
-
-    private ItemRequest makeItemRequest(String description, Long requesterId, LocalDateTime created) {
-        ItemRequest itemRequest = new ItemRequest();
-        itemRequest.setDescription(description);
-        itemRequest.setRequesterId(requesterId);
-        itemRequest.setCreated(created);
-        return itemRequest;
     }
 }

@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -16,12 +14,10 @@ import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,35 +41,16 @@ public class ItemServiceImplTest {
 
     @BeforeEach
     void addDate() {
-        List<User> sourceUsers = List.of(
-                makeUser("ivan@mail.ru", "Иван"),
-                makeUser("petr@mail.ru", "Петр"),
-                makeUser("vase@mail.ru", "Вася")
-        );
-        for (User user : sourceUsers) {
-            em.persist(user);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 1, 'Иван', 'ivan@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 2, 'Петр', 'petr@mail.ru' )");
+        jdbcTemplate.update("INSERT INTO USERS VALUES ( 3, 'Вася', 'vase@mail.ru' )");
 
-        List<Item> sourceItems = List.of(
-                makeItemForDB(1L, "метла", "штука для приборки", true, 1L),
-                makeItemForDB(1L, "дрель", "чтоб сверлить", true, 3L),
-                makeItemForDB(3L, "кофемашина", "делать кофе", true, 5L)
-        );
-        for (Item item : sourceItems) {
-            em.persist(item);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 1, 1, 'метла', 'штука для приборки', true, 1 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 2, 1, 'дрель', 'чтоб сверлить', true, 3 )");
+        jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 3, 3, 'кофемашина', 'делать кофе', true, 5 )");
 
-        List<Booking> sourceBookings = List.of(
-                makeBooking(LocalDateTime.of(2022, 3, 8, 12, 30, 54),
-                        LocalDateTime.of(2022, 3, 9, 12, 30, 54),
-                        2L, 3L, BookingStatus.APPROVED)
-        );
-        for (Booking booking : sourceBookings) {
-            em.persist(booking);
-        }
-        em.flush();
+        jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 1, '2022-3-8 12:30:54'," +
+                " '2022-3-9 12:30:54', 2, 3, 'APPROVED' )");
     }
 
     @AfterEach
@@ -88,9 +65,9 @@ public class ItemServiceImplTest {
 
     @Test
     void saveItem() {
-        long userId = 2;
-        ItemDto itemDto = service.saveItem(userId,
-                makeItemDto("камера", "делать видео", true, 2L));
+        long userId = 3;
+        ItemDto itemDto = makeItemDto("камера", "делать видео", true, 2L);
+        service.saveItem(userId, itemDto);
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.name = :name", Item.class);
         Item item = query.setParameter("name", itemDto.getName()).getSingleResult();
         assertThat(item.getId(), notNullValue());
@@ -251,16 +228,6 @@ public class ItemServiceImplTest {
         });
     }
 
-    private Item makeItemForDB(Long userId, String name, String description, Boolean available, Long requestId) {
-        Item item = new Item();
-        item.setUserId(userId);
-        item.setName(name);
-        item.setDescription(description);
-        item.setAvailable(available);
-        item.setRequestId(requestId);
-        return item;
-    }
-
     private static ItemDto makeItemDto(String name, String description, Boolean available, Long requestId) {
         ItemDto itemDto = new ItemDto();
         itemDto.setName(name);
@@ -268,22 +235,5 @@ public class ItemServiceImplTest {
         itemDto.setAvailable(available);
         itemDto.setRequestId(requestId);
         return itemDto;
-    }
-
-    private User makeUser(String email, String name) {
-        User user = new User();
-        user.setEmail(email);
-        user.setName(name);
-        return user;
-    }
-
-    private Booking makeBooking(LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId, BookingStatus status) {
-        Booking booking = new Booking();
-        booking.setStart(start);
-        booking.setEnd(end);
-        booking.setItemId(itemId);
-        booking.setBookerId(bookerId);
-        booking.setStatus(status);
-        return booking;
     }
 }

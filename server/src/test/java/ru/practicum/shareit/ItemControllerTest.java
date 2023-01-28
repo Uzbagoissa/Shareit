@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.practicum.shareit.exceptions.ForbiddenException;
-import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.CommentDto;
