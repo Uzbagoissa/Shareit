@@ -1,7 +1,6 @@
 package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,18 +52,10 @@ public class ItemServiceImplTest {
                 " '2022-3-9 12:30:54', 2, 3, 'APPROVED' )");
     }
 
-    @AfterEach
-    void tearDown() {
-        jdbcTemplate.update("DELETE FROM USERS");
-        jdbcTemplate.update("DELETE FROM ITEMS");
-        jdbcTemplate.update("DELETE FROM BOOKINGS");
-        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE ITEMS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE BOOKINGS ALTER COLUMN ID RESTART WITH 1");
-    }
-
     @Test
     void saveItem() {
+        jdbcTemplate.update("DELETE FROM ITEMS");
+        jdbcTemplate.update("ALTER TABLE ITEMS ALTER COLUMN ID RESTART WITH 1");
         long userId = 3;
         ItemDto itemDto = makeItemDto("камера", "делать видео", true, 2L);
         service.saveItem(userId, itemDto);

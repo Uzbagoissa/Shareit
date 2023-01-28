@@ -1,7 +1,6 @@
 package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,18 +65,10 @@ public class BookingServiceImplTest {
                 " '2021-3-10 12:30:54', 1, 3, 'REJECTED' )");
     }
 
-    @AfterEach
-    void tearDown() {
-        jdbcTemplate.update("DELETE FROM USERS");
-        jdbcTemplate.update("DELETE FROM ITEMS");
-        jdbcTemplate.update("DELETE FROM BOOKINGS");
-        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE ITEMS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE BOOKINGS ALTER COLUMN ID RESTART WITH 1");
-    }
-
     @Test
     void saveBooking() {
+        jdbcTemplate.update("DELETE FROM BOOKINGS");
+        jdbcTemplate.update("ALTER TABLE BOOKINGS ALTER COLUMN ID RESTART WITH 1");
         long bookerId = 3;
         long itemId = 5;
         LocalDateTime bookingStart = LocalDateTime.of(2024, 5, 8, 12, 30, 54);

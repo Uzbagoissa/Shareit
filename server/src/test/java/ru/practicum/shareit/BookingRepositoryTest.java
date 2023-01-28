@@ -1,6 +1,5 @@
 package ru.practicum.shareit;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,16 +56,6 @@ public class BookingRepositoryTest {
                 " '2021-4-10 12:30:54', 2, 3, 'APPROVED' )");
         jdbcTemplate.update("INSERT INTO BOOKINGS VALUES ( 6, '2021-2-1 12:30:54'," +
                 " '2021-3-10 12:30:54', 1, 3, 'REJECTED' )");
-    }
-
-    @AfterEach
-    void tearDown() {
-        jdbcTemplate.update("DELETE FROM USERS");
-        jdbcTemplate.update("DELETE FROM ITEMS");
-        jdbcTemplate.update("DELETE FROM BOOKINGS");
-        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE ITEMS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE BOOKINGS ALTER COLUMN ID RESTART WITH 1");
     }
 
     @Test

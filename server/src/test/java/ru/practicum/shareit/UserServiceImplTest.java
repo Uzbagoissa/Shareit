@@ -1,7 +1,6 @@
 package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +39,10 @@ public class UserServiceImplTest {
         jdbcTemplate.update("INSERT INTO USERS VALUES ( 3, 'Вася', 'vase@mail.ru' )");
     }
 
-    @AfterEach
-    void tearDown() {
-        jdbcTemplate.update("DELETE FROM USERS");
-        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
-    }
-
     @Test
     void saveUser() {
+        jdbcTemplate.update("DELETE FROM USERS");
+        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
         UserDto userDto = makeUserDto("ivanko@mail.ru", "Иваныч");
         service.saveUser(userDto);
         TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);

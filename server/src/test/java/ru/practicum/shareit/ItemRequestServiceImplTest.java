@@ -1,7 +1,6 @@
 package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,18 +57,10 @@ public class ItemRequestServiceImplTest {
         jdbcTemplate.update("INSERT INTO ITEMS VALUES ( 3, 3, 'кофемашина', 'делать кофе', true, 5 )");
     }
 
-    @AfterEach
-    void tearDown() {
-        jdbcTemplate.update("DELETE FROM USERS");
-        jdbcTemplate.update("DELETE FROM ITEMS");
-        jdbcTemplate.update("DELETE FROM REQUESTS");
-        jdbcTemplate.update("ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE ITEMS ALTER COLUMN ID RESTART WITH 1");
-        jdbcTemplate.update("ALTER TABLE REQUESTS ALTER COLUMN ID RESTART WITH 1");
-    }
-
     @Test
     void saveItemRequest() {
+        jdbcTemplate.update("DELETE FROM REQUESTS");
+        jdbcTemplate.update("ALTER TABLE REQUESTS ALTER COLUMN ID RESTART WITH 1");
         long requesterId = 1;
         String description = "нужна штука, чтобы снимать фото";
         ItemRequestDtoOut itemRequestDtoOut = service.saveItemRequest(requesterId, new ItemRequestDtoIn(description));
